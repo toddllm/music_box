@@ -163,7 +163,13 @@ async function toggleRecording() {
     if (!gameState.isRecording) {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            gameState.mediaRecorder = new MediaRecorder(stream);
+            // Use lower quality for smaller file size
+            const options = {
+                mimeType: 'audio/webm;codecs=opus',
+                audioBitsPerSecond: 16000
+            };
+            
+            gameState.mediaRecorder = new MediaRecorder(stream, options);
             gameState.audioChunks = [];
 
             gameState.mediaRecorder.ondataavailable = (event) => {
