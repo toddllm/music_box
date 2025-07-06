@@ -1,4 +1,4 @@
-const AWS = require('aws-sdk');
+const { SecretsManagerClient, GetSecretValueCommand } = require('@aws-sdk/client-secrets-manager');
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
@@ -6,7 +6,7 @@ const { OpenAI } = require('openai');
 const fs = require('fs').promises;
 const path = require('path');
 
-const secretsManager = new AWS.SecretsManager();
+const secretsManager = new SecretsManagerClient({});
 const app = express();
 
 let openai;
@@ -15,9 +15,10 @@ let openai;
 async function loadSecrets() {
   try {
     const secretName = process.env.SECRET_NAME || 'music_box_config';
-    const data = await secretsManager.getSecretValue({ SecretId: secretName }).promise();
+    const command = new GetSecretValueCommand({ SecretId: secretName });
+    const data = await secretsManager.send(command);
     
-    if ('SecretString' in data) {
+    if (data.SecretString) {
       const secrets = JSON.parse(data.SecretString);
       
       // Set environment variables from secrets

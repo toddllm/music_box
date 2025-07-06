@@ -12,6 +12,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@aws-sdk/client-apigatewaymanagementapi": "^3.0.0",
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@aws-sdk/client-secrets-manager": "^3.0.0",
+    "@aws-sdk/lib-dynamodb": "^3.0.0",
     "aws-sdk": "^2.1692.0",
     "aws-serverless-express": "^3.4.0",
     "cors": "^2.8.5",
@@ -19,7 +23,6 @@
     "express": "^5.1.0",
     "express-session": "^1.18.1",
     "multer": "^2.0.1",
-    "openai": "^5.8.2",
-    "socket.io": "^4.8.1"
+    "openai": "^5.8.2"
   }
 }

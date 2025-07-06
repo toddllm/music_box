@@ -1,7 +1,10 @@
-const AWS = require('aws-sdk');
+const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
+const { DynamoDBDocumentClient, PutCommand, DeleteCommand, ScanCommand } = require('@aws-sdk/lib-dynamodb');
+const { ApiGatewayManagementApiClient, PostToConnectionCommand } = require('@aws-sdk/client-apigatewaymanagementapi');
 
-const ddb = new AWS.DynamoDB.DocumentClient();
-const apigwManagementApi = new AWS.ApiGatewayManagementApi({
+const ddbClient = new DynamoDBClient({});
+const ddb = DynamoDBDocumentClient.from(ddbClient);
+const apigwManagementApi = new ApiGatewayManagementApiClient({
   endpoint: `https://${process.env.WEBSOCKET_API_ID}.execute-api.${process.env.AWS_REGION}.amazonaws.com/${process.env.WEBSOCKET_STAGE}`
 });
 
@@ -50,7 +53,7 @@ async function handleConnect(connectionId) {
     }
   };
   
-  await ddb.put(params).promise();
+  await ddb.send(new PutCommand(params));
   console.log('Client connected:', connectionId);
 }
 
@@ -61,7 +64,7 @@ async function handleDisconnect(connectionId) {
     Key: { connectionId }
   };
   
-  await ddb.delete(params).promise();
+  await ddb.send(new DeleteCommand(params));
   
   // Remove from game state
   gameState.players.delete(connectionId);
@@ -200,10 +203,10 @@ function selectNextPlayer() {
 
 async function sendToConnection(connectionId, event, data) {
   try {
-    await apigwManagementApi.postToConnection({
+    await apigwManagementApi.send(new PostToConnectionCommand({
       ConnectionId: connectionId,
       Data: JSON.stringify({ event, data })
-    }).promise();
+    }));
   } catch (error) {
     if (error.statusCode === 410) {
       console.log('Connection gone:', connectionId);
@@ -230,6 +233,6 @@ async function getAllConnections() {
     TableName: TABLE_NAME
   };
   
-  const result = await ddb.scan(params).promise();
+  const result = await ddb.send(new ScanCommand(params));
   return result.Items.map(item => item.connectionId);
 }
