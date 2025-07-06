@@ -1,4 +1,78 @@
-const socket = io();
+// WebSocket connection setup
+let socket;
+const WEBSOCKET_URL = 'wss://wnklfn60sd.execute-api.us-east-1.amazonaws.com/production'; // Will be replaced with actual URL
+
+function initializeWebSocket() {
+  socket = new WebSocket(WEBSOCKET_URL);
+  
+  socket.onopen = () => {
+    console.log('WebSocket connected');
+  };
+  
+  socket.onmessage = (event) => {
+    const message = JSON.parse(event.data);
+    handleWebSocketMessage(message.event, message.data);
+  };
+  
+  socket.onclose = () => {
+    console.log('WebSocket disconnected');
+    setTimeout(initializeWebSocket, 3000); // Reconnect after 3 seconds
+  };
+  
+  socket.onerror = (error) => {
+    console.error('WebSocket error:', error);
+  };
+}
+
+function sendWebSocketMessage(action, data) {
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify({ action, data }));
+  }
+}
+
+function handleWebSocketMessage(event, data) {
+  switch (event) {
+    case 'player-joined':
+      gameState.playerId = data.playerId;
+      showScreen('lobby');
+      updatePlayersList(data.players);
+      break;
+    case 'player-list-update':
+      updatePlayersList(data);
+      break;
+    case 'game-full':
+      alert('Game is full! Please try again later.');
+      break;
+    case 'not-enough-players':
+      alert('Need at least 2 players to start the game!');
+      break;
+    case 'game-started':
+      showScreen('game');
+      updateGameDisplay(data);
+      break;
+    case 'next-turn':
+      updateGameDisplay(data);
+      break;
+    case 'player-eliminated':
+      showNotification(`${data.playerName} was eliminated! ${data.reason}`);
+      updatePlayersStatus();
+      break;
+    case 'game-over':
+      showScreen('gameOver');
+      if (data.winner) {
+        winnerDisplay.innerHTML = `🏆 ${data.winner.name} wins! 🏆`;
+      } else {
+        winnerDisplay.innerHTML = data.message || 'No winner!';
+      }
+      break;
+    case 'not-your-turn':
+      alert('It\'s not your turn!');
+      break;
+  }
+}
+
+// Initialize WebSocket connection
+initializeWebSocket();
 let gameState = {
     playerId: null,
     playerName: null,
@@ -38,51 +112,11 @@ joinBtn.addEventListener('click', joinGame);
 playerNameInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') joinGame();
 });
-startGameBtn.addEventListener('click', () => socket.emit('start-game'));
+startGameBtn.addEventListener('click', () => sendWebSocketMessage('start-game', {}));
 recordBtn.addEventListener('click', toggleRecording);
 playAgainBtn.addEventListener('click', () => location.reload());
 
-// Socket event handlers
-socket.on('player-joined', (data) => {
-    gameState.playerId = data.playerId;
-    showScreen('lobby');
-    updatePlayersList(data.players);
-});
-
-socket.on('player-list-update', updatePlayersList);
-
-socket.on('game-full', () => {
-    alert('Game is full! Please try again later.');
-});
-
-socket.on('not-enough-players', () => {
-    alert('Need at least 2 players to start the game!');
-});
-
-socket.on('game-started', (data) => {
-    showScreen('game');
-    updateGameDisplay(data);
-});
-
-socket.on('next-turn', updateGameDisplay);
-
-socket.on('player-eliminated', (data) => {
-    showNotification(`${data.playerName} was eliminated! ${data.reason}`);
-    updatePlayersStatus();
-});
-
-socket.on('game-over', (data) => {
-    showScreen('gameOver');
-    if (data.winner) {
-        winnerDisplay.innerHTML = `🏆 ${data.winner.name} wins! 🏆`;
-    } else {
-        winnerDisplay.innerHTML = data.message || 'No winner!';
-    }
-});
-
-socket.on('not-your-turn', () => {
-    alert('It\'s not your turn!');
-});
+// WebSocket events are handled in handleWebSocketMessage function above
 
 // Functions
 function joinGame() {
@@ -92,7 +126,7 @@ function joinGame() {
         return;
     }
     gameState.playerName = name;
-    socket.emit('join-game', name);
+    sendWebSocketMessage('join-game', name);
 }
 
 function showScreen(screenName) {
@@ -122,7 +156,7 @@ function updateGameDisplay(data) {
 }
 
 function updatePlayersStatus() {
-    socket.emit('get-players-status');
+    // Players status is automatically updated via WebSocket messages
 }
 
 async function toggleRecording() {
@@ -186,7 +220,7 @@ async function submitPerformance(audioBlob) {
             showNotification('Great performance! No laughter detected!');
         }
 
-        socket.emit('performance-result', { hasLaughter: result.hasLaughter });
+        sendWebSocketMessage('performance-result', { hasLaughter: result.hasLaughter });
         recordingStatus.textContent = '';
 
     } catch (error) {

@@ -1,0 +1,110 @@
+name: Deploy Music Box to AWS
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  AWS_REGION: us-east-1
+  STACK_NAME: music-box-game
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      id-token: write
+      contents: read
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        role-session-name: GitHubActions
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Setup SAM CLI
+      uses: aws-actions/setup-sam@v2
+      with:
+        use-installer: true
+
+    - name: Create deployment bucket
+      run: |
+        ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+        S3_BUCKET="music-box-deployment-${ACCOUNT_ID}"
+        aws s3 mb s3://${S3_BUCKET} --region ${AWS_REGION} 2>/dev/null || true
+        echo "S3_BUCKET=${S3_BUCKET}" >> $GITHUB_ENV
+
+    - name: Build SAM application
+      run: sam build
+
+    - name: Deploy SAM application
+      run: |
+        sam deploy \
+          --stack-name ${STACK_NAME} \
+          --s3-bucket ${S3_BUCKET} \
+          --capabilities CAPABILITY_IAM \
+          --region ${AWS_REGION} \
+          --parameter-overrides Environment=production \
+          --no-confirm-changeset
+
+    - name: Get deployment outputs
+      run: |
+        API_URL=$(aws cloudformation describe-stacks \
+          --stack-name ${STACK_NAME} \
+          --query 'Stacks[0].Outputs[?OutputKey==`ApiUrl`].OutputValue' \
+          --output text \
+          --region ${AWS_REGION})
+        
+        WEBSOCKET_URL=$(aws cloudformation describe-stacks \
+          --stack-name ${STACK_NAME} \
+          --query 'Stacks[0].Outputs[?OutputKey==`WebSocketUrl`].OutputValue' \
+          --output text \
+          --region ${AWS_REGION})
+        
+        CLOUDFRONT_URL=$(aws cloudformation describe-stacks \
+          --stack-name ${STACK_NAME} \
+          --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontUrl`].OutputValue' \
+          --output text \
+          --region ${AWS_REGION})
+        
+        S3_BUCKET_NAME=$(aws cloudformation describe-stacks \
+          --stack-name ${STACK_NAME} \
+          --query 'Stacks[0].Outputs[?OutputKey==`S3BucketName`].OutputValue' \
+          --output text \
+          --region ${AWS_REGION})
+
+        echo "API_URL=${API_URL}" >> $GITHUB_ENV
+        echo "WEBSOCKET_URL=${WEBSOCKET_URL}" >> $GITHUB_ENV
+        echo "CLOUDFRONT_URL=${CLOUDFRONT_URL}" >> $GITHUB_ENV
+        echo "S3_BUCKET_NAME=${S3_BUCKET_NAME}" >> $GITHUB_ENV
+
+    - name: Update WebSocket URL in game.js
+      run: |
+        sed -i "s|const WEBSOCKET_URL = 'wss://.*';|const WEBSOCKET_URL = '${WEBSOCKET_URL}';|g" public/game.js
+
+    - name: Upload static files to S3
+      run: |
+        aws s3 sync ./public s3://${S3_BUCKET_NAME} --delete
+
+    - name: Output deployment info
+      run: |
+        echo "🎉 Deployment complete!"
+        echo "🌐 Game URL: https://${CLOUDFRONT_URL}"
+        echo "🔗 API URL: ${API_URL}"
+        echo "🔌 WebSocket URL: ${WEBSOCKET_URL}"
