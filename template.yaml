@@ -14,7 +14,7 @@ Parameters:
 Globals:
   Function:
     Timeout: 60
-    Runtime: nodejs18.x
+    Runtime: nodejs20.x
     Environment:
       Variables:
         ENVIRONMENT: !Ref Environment

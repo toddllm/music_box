@@ -209,13 +209,27 @@ async function toggleRecording() {
 }
 
 async function submitPerformance(audioBlob) {
-    const formData = new FormData();
-    formData.append('audio', audioBlob, 'performance.webm');
-
     try {
-        const response = await fetch('/api/analyze-audio', {
+        // Convert blob to base64
+        const reader = new FileReader();
+        const base64Promise = new Promise((resolve) => {
+            reader.onloadend = () => {
+                const base64 = reader.result.split(',')[1]; // Remove data:audio/webm;base64, prefix
+                resolve(base64);
+            };
+        });
+        reader.readAsDataURL(audioBlob);
+        const audioData = await base64Promise;
+
+        const response = await fetch('/api/analyze-audio-base64', {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                audioData,
+                mimeType: 'audio/webm'
+            })
         });
 
         const result = await response.json();
