@@ -175,23 +175,15 @@ app.post('/api/analyze-audio-base64', async (req, res) => {
     // Convert base64 to buffer
     const audioBuffer = Buffer.from(audioData, 'base64');
     
-    // Save to temp file for OpenAI API
-    const tempPath = `/tmp/audio-${Date.now()}.webm`;
-    await fs.writeFile(tempPath, audioBuffer);
-    
-    // Create a readable stream for OpenAI
-    const fileStream = fsSync.createReadStream(tempPath);
-    fileStream.path = 'audio.webm'; // OpenAI needs a filename
+    // Use OpenAI's toFile helper
+    const file = await toFile(audioBuffer, 'audio.webm', { type: mimeType || 'audio/webm' });
     
     // Transcribe audio using Whisper
     const transcription = await openai.audio.transcriptions.create({
-      file: fileStream,
+      file: file,
       model: "whisper-1",
       response_format: "verbose_json"
     });
-    
-    // Clean up temp file
-    await fs.unlink(tempPath);
 
     // Analyze for laughter using GPT-4o-mini
     const laughAnalysis = await openai.chat.completions.create({
