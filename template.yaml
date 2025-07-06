@@ -58,7 +58,7 @@ Resources:
     Type: AWS::ApiGatewayV2::Api
     Properties:
       Name: MusicBoxWebSocket
-      ProtocolType: websocket
+      ProtocolType: WEBSOCKET
       RouteSelectionExpression: "$request.body.action"
 
   WebSocketStage:
@@ -192,9 +192,9 @@ Resources:
       DistributionConfig:
         Origins:
           - Id: S3Origin
-            DomainName: !GetAtt StaticContentBucket.WebsiteURL
-            CustomOriginConfig:
-              OriginProtocolPolicy: http-only
+            DomainName: !GetAtt StaticContentBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ""
           - Id: ApiOrigin
             DomainName: !Sub '${MusicBoxApi}.execute-api.${AWS::Region}.amazonaws.com'
             OriginPath: !Sub '/${Environment}'
