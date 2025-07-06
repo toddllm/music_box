@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Box - Sing Without Laughing!</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Music Box 🎤</h1>
+        
+        <div id="login-screen" class="screen active">
+            <h2>Join the Game</h2>
+            <input type="text" id="player-name" placeholder="Enter your name" maxlength="20">
+            <button id="join-btn" class="btn-primary">Join Game</button>
+        </div>
+
+        <div id="lobby-screen" class="screen">
+            <h2>Game Lobby</h2>
+            <div id="players-list" class="players-list"></div>
+            <button id="start-game-btn" class="btn-primary">Start Game</button>
+            <div class="game-rules">
+                <h3>Rules:</h3>
+                <ul>
+                    <li>Players take turns singing</li>
+                    <li>If you laugh during your performance, you're eliminated!</li>
+                    <li>Last player remaining wins!</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="game-screen" class="screen">
+            <div id="game-status"></div>
+            <div id="current-player-display"></div>
+            
+            <div id="performance-area" class="hidden">
+                <h3>Your Turn to Sing!</h3>
+                <button id="record-btn" class="btn-record">🎤 Start Recording</button>
+                <div id="recording-status"></div>
+                <div id="audio-visualizer" class="visualizer"></div>
+            </div>
+
+            <div id="waiting-area" class="hidden">
+                <h3>Waiting for other players...</h3>
+                <div class="spinner"></div>
+            </div>
+
+            <div id="alive-players" class="players-status"></div>
+            <div id="eliminated-players" class="players-status eliminated"></div>
+        </div>
+
+        <div id="game-over-screen" class="screen">
+            <h2>Game Over!</h2>
+            <div id="winner-display"></div>
+            <button id="play-again-btn" class="btn-primary">Play Again</button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
