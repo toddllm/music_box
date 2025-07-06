@@ -1,6 +1,6 @@
 // WebSocket connection setup
 let socket;
-const WEBSOCKET_URL = 'wss://wnklfn60sd.execute-api.us-east-1.amazonaws.com/production'; // Will be replaced with actual URL
+const WEBSOCKET_URL = 'wss://w4c66zvhz0.execute-api.us-east-1.amazonaws.com/production';
 
 function initializeWebSocket() {
   socket = new WebSocket(WEBSOCKET_URL);
