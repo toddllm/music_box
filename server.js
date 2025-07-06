@@ -61,9 +61,9 @@ app.post('/api/analyze-audio', upload.single('audio'), async (req, res) => {
       response_format: "verbose_json"
     });
 
-    // Analyze for laughter using GPT-4
+    // Analyze for laughter using GPT-4o
     const laughAnalysis = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",

@@ -13,7 +13,7 @@ Parameters:
 
 Globals:
   Function:
-    Timeout: 30
+    Timeout: 60
     Runtime: nodejs18.x
     Environment:
       Variables:
@@ -231,9 +231,12 @@ Resources:
               Headers:
                 - Authorization
                 - Content-Type
+                - Accept
+                - Origin
             MinTTL: 0
             DefaultTTL: 0
             MaxTTL: 0
+            Compress: false
           - PathPattern: /socket.io/*
             TargetOriginId: ApiOrigin
             ViewerProtocolPolicy: https-only
