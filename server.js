@@ -61,9 +61,9 @@ app.post('/api/analyze-audio', upload.single('audio'), async (req, res) => {
       response_format: "verbose_json"
     });
 
-    // Analyze for laughter using GPT-4o
+    // Analyze for laughter using GPT-4o-mini for faster response
     const laughAnalysis = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
@@ -71,10 +71,11 @@ app.post('/api/analyze-audio', upload.single('audio'), async (req, res) => {
         },
         {
           role: "user",
-          content: `Transcription: ${transcription.text}\nSegments: ${JSON.stringify(transcription.segments)}`
+          content: `Transcription: ${transcription.text}`
         }
       ],
-      response_format: { type: "json_object" }
+      response_format: { type: "json_object" },
+      max_tokens: 50
     });
 
     const result = JSON.parse(laughAnalysis.choices[0].message.content);

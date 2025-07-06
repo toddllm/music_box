@@ -200,6 +200,8 @@ Resources:
             OriginPath: !Sub '/${Environment}'
             CustomOriginConfig:
               OriginProtocolPolicy: https-only
+              OriginReadTimeout: 60
+              OriginKeepaliveTimeout: 60
         DefaultRootObject: index.html
         Enabled: true
         Comment: Music Box Game Distribution
