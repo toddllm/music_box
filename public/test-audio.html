@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Audio API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+        #status { margin-top: 20px; padding: 10px; background: #f0f0f0; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Audio Analysis API Test</h1>
+    
+    <button id="recordBtn">Start Recording</button>
+    <button id="testBtn" disabled>Test Audio Analysis</button>
+    
+    <div id="status">Ready to record...</div>
+    
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let audioBlob;
+        
+        const recordBtn = document.getElementById('recordBtn');
+        const testBtn = document.getElementById('testBtn');
+        const status = document.getElementById('status');
+        
+        recordBtn.addEventListener('click', async () => {
+            if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+                // Start recording
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                const options = {
+                    mimeType: 'audio/webm;codecs=opus',
+                    audioBitsPerSecond: 16000
+                };
+                
+                mediaRecorder = new MediaRecorder(stream, options);
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+                
+                mediaRecorder.onstop = () => {
+                    audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    status.textContent = 'Recording complete. Click "Test Audio Analysis" to analyze.';
+                    testBtn.disabled = false;
+                    stream.getTracks().forEach(track => track.stop());
+                };
+                
+                mediaRecorder.start();
+                recordBtn.textContent = 'Stop Recording';
+                status.textContent = 'Recording... (speak or make some noise)';
+                
+                // Auto-stop after 5 seconds
+                setTimeout(() => {
+                    if (mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                        recordBtn.textContent = 'Start Recording';
+                    }
+                }, 5000);
+            } else {
+                // Stop recording
+                mediaRecorder.stop();
+                recordBtn.textContent = 'Start Recording';
+            }
+        });
+        
+        testBtn.addEventListener('click', async () => {
+            if (!audioBlob) return;
+            
+            status.textContent = 'Converting to base64...';
+            
+            // Convert to base64
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                const base64 = reader.result.split(',')[1];
+                
+                status.textContent = 'Sending to API...';
+                
+                try {
+                    const response = await fetch('/api/analyze-audio-base64', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            audioData: base64,
+                            mimeType: 'audio/webm'
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        status.innerHTML = `
+                            <div class="success">Success!</div>
+                            <h3>Results:</h3>
+                            <p><strong>Transcription:</strong> "${result.transcription || '(empty)'}"</p>
+                            <p><strong>Has Laughter:</strong> ${result.hasLaughter}</p>
+                            <p><strong>Confidence:</strong> ${result.confidence}%</p>
+                            <p><strong>Laughter Type:</strong> ${result.laughterType || 'None detected'}</p>
+                            <p><strong>Explanation:</strong> ${result.explanation || 'N/A'}</p>
+                            
+                            <h3>Debug Info:</h3>
+                            <p><strong>Audio Duration:</strong> ${result.debug?.duration?.toFixed(2) || '?'} seconds</p>
+                            <p><strong>Language:</strong> ${result.debug?.language || '?'}</p>
+                            <p><strong>Segments:</strong> ${result.debug?.segmentCount || 0}</p>
+                            <p><strong>Audio Size:</strong> ${(result.debug?.audioLength / 1024).toFixed(1) || '?'} KB</p>
+                            <p><strong>Model:</strong> ${result.debug?.model || '?'}</p>
+                            
+                            <details>
+                                <summary>Full Response JSON</summary>
+                                <pre>${JSON.stringify(result, null, 2)}</pre>
+                            </details>
+                        `;
+                    } else {
+                        status.innerHTML = `<div class="error">Error: ${result.error}<br>Details: ${result.details}</div>`;
+                    }
+                } catch (error) {
+                    status.innerHTML = `<div class="error">Network error: ${error.message}</div>`;
+                }
+            };
+            
+            reader.readAsDataURL(audioBlob);
+        });
+    </script>
+</body>
+</html>

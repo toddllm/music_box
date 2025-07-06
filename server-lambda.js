@@ -179,36 +179,84 @@ app.post('/api/analyze-audio-base64', async (req, res) => {
     const file = await toFile(audioBuffer, 'audio.webm', { type: mimeType || 'audio/webm' });
     
     // Transcribe audio using Whisper
+    console.log('Starting Whisper transcription...');
     const transcription = await openai.audio.transcriptions.create({
       file: file,
       model: "whisper-1",
       response_format: "verbose_json"
     });
+    
+    console.log('Whisper transcription result:', {
+      text: transcription.text,
+      duration: transcription.duration,
+      language: transcription.language,
+      segments: transcription.segments?.map(s => ({
+        text: s.text,
+        start: s.start,
+        end: s.end,
+        tokens: s.tokens?.slice(0, 5) // First 5 tokens for debug
+      }))
+    });
 
-    // Analyze for laughter using GPT-4o-mini
+    // Enhanced prompt for better laughter detection
+    const systemPrompt = `You are an expert at detecting laughter and vocal expressions in audio transcriptions.
+
+Analyze the transcription for ANY signs of laughter, including:
+- Explicit laughter words: "haha", "hehe", "hoho", "hahaha", "lol"
+- Phonetic laughter: "ha", "he", "ah ah", "eh eh"
+- Repeated vowel sounds that indicate laughter: "aaa", "eee", "ahaha"
+- Breathing patterns: heavy breathing between words
+- Giggling indicators: repeated short sounds
+- Any vocalization that doesn't form real words but indicates amusement
+
+The transcription might capture laughter as repeated letters or sounds.
+
+Respond with a JSON object containing:
+- hasLaughter (boolean): true if ANY form of laughter is detected
+- confidence (0-100): how confident you are
+- laughterType (string): type of laughter detected (e.g., "giggling", "loud laughter", "chuckling")
+- explanation (string): brief explanation of what you detected`;
+
+    const userPrompt = `Transcription: "${transcription.text}"
+Duration: ${transcription.duration} seconds
+Segments: ${JSON.stringify(transcription.segments?.map(s => s.text) || [])}
+
+Is there any laughter or laughing sounds in this transcription?`;
+
+    console.log('Sending to GPT-4o-mini for analysis...');
     const laughAnalysis = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content: "You are an expert at detecting laughter in audio transcriptions. Analyze the following transcription and determine if there is laughter present. Consider sounds like 'haha', 'hehe', giggling descriptions, or any indication of laughter. Respond with a JSON object containing 'hasLaughter' (boolean) and 'confidence' (0-100)."
+          content: systemPrompt
         },
         {
           role: "user",
-          content: `Transcription: ${transcription.text}`
+          content: userPrompt
         }
       ],
       response_format: { type: "json_object" },
-      max_tokens: 50,
+      max_tokens: 200,
       temperature: 0.3
     });
 
     const result = JSON.parse(laughAnalysis.choices[0].message.content);
+    console.log('GPT-4o-mini analysis result:', result);
 
     res.json({
       transcription: transcription.text,
       hasLaughter: result.hasLaughter,
-      confidence: result.confidence
+      confidence: result.confidence,
+      laughterType: result.laughterType,
+      explanation: result.explanation,
+      debug: {
+        duration: transcription.duration,
+        language: transcription.language,
+        segmentCount: transcription.segments?.length || 0,
+        model: 'gpt-4o-mini',
+        audioLength: audioBuffer.length
+      }
     });
 
   } catch (error) {
