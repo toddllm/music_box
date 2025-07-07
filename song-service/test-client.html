@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song Generation Test Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #764ba2;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        textarea {
+            resize: vertical;
+            height: 100px;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            margin-top: 2rem;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .loading {
+            background: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+        
+        audio {
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        .metadata {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .metadata div {
+            margin: 0.3rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Song Generation Test Client</h1>
+        
+        <form id="songForm">
+            <div class="form-group">
+                <label for="prompt">Song Prompt:</label>
+                <textarea id="prompt" placeholder="Describe the song you want to generate..." required>A happy, upbeat song about dancing in the sunshine</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="style">Music Style:</label>
+                <select id="style">
+                    <option value="pop">Pop</option>
+                    <option value="rock">Rock</option>
+                    <option value="jazz">Jazz</option>
+                    <option value="classical">Classical</option>
+                    <option value="electronic">Electronic</option>
+                    <option value="folk">Folk</option>
+                    <option value="country">Country</option>
+                    <option value="blues">Blues</option>
+                    <option value="reggae">Reggae</option>
+                    <option value="hip-hop">Hip-Hop</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="duration">Duration (seconds):</label>
+                <input type="number" id="duration" min="10" max="60" value="30">
+            </div>
+            
+            <div class="form-group">
+                <label for="serverUrl">Server URL:</label>
+                <input type="url" id="serverUrl" value="http://localhost:3001" placeholder="http://localhost:3001">
+            </div>
+            
+            <button type="submit" id="generateBtn">🎵 Generate Song</button>
+        </form>
+        
+        <div id="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('songForm');
+        const generateBtn = document.getElementById('generateBtn');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const prompt = document.getElementById('prompt').value;
+            const style = document.getElementById('style').value;
+            const duration = parseInt(document.getElementById('duration').value);
+            const serverUrl = document.getElementById('serverUrl').value;
+            
+            if (!prompt.trim()) {
+                showResult('error', 'Please enter a song prompt');
+                return;
+            }
+            
+            generateBtn.disabled = true;
+            generateBtn.textContent = '🎵 Generating...';
+            
+            showResult('loading', 'Generating your song... This may take a minute or two.');
+            
+            try {
+                const response = await fetch(`${serverUrl}/api/generate-song`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        prompt,
+                        style,
+                        duration
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success && result.audioUrl) {
+                    showResult('success', 'Song generated successfully!', result);
+                } else {
+                    showResult('error', result.error || 'Failed to generate song');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showResult('error', `Failed to connect to server: ${error.message}`);
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = '🎵 Generate Song';
+            }
+        });
+
+        function showResult(type, message, data = null) {
+            resultDiv.style.display = 'block';
+            resultDiv.className = `result ${type}`;
+            
+            let html = `<strong>${message}</strong>`;
+            
+            if (data && data.audioUrl) {
+                html += `
+                    <audio controls>
+                        <source src="${data.audioUrl}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                    <div class="metadata">
+                        <div><strong>Prompt:</strong> ${data.prompt}</div>
+                        <div><strong>Style:</strong> ${data.style}</div>
+                        <div><strong>Duration:</strong> ${data.duration} seconds</div>
+                        <div><strong>Generated:</strong> ${new Date(data.generatedAt).toLocaleString()}</div>
+                        ${data.metadata ? `<div><strong>Request ID:</strong> ${data.metadata.requestId}</div>` : ''}
+                    </div>
+                `;
+            }
+            
+            resultDiv.innerHTML = html;
+        }
+
+        // Test server connection on page load
+        window.addEventListener('load', async () => {
+            const serverUrl = document.getElementById('serverUrl').value;
+            try {
+                const response = await fetch(`${serverUrl}/health`);
+                const health = await response.json();
+                console.log('Server health:', health);
+            } catch (error) {
+                console.warn('Could not connect to server:', error.message);
+            }
+        });
+    </script>
+</body>
+</html>
