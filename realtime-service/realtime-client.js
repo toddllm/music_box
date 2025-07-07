@@ -11,7 +11,7 @@ export class RealtimeClient extends EventEmitter {
 
   async connect() {
     return new Promise((resolve, reject) => {
-      this.ws = new WebSocket('wss://api.openai.com/v1/realtime', {
+      this.ws = new WebSocket('wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01', {
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
           'OpenAI-Beta': 'realtime=v1'
@@ -25,8 +25,13 @@ export class RealtimeClient extends EventEmitter {
       });
 
       this.ws.on('message', (data) => {
-        const event = JSON.parse(data.toString());
-        this.handleEvent(event);
+        try {
+          const event = JSON.parse(data.toString());
+          console.log('[RealtimeClient] Received event:', event.type, event.error ? event.error : '');
+          this.handleEvent(event);
+        } catch (error) {
+          console.error('[RealtimeClient] Failed to parse message:', data.toString());
+        }
       });
 
       this.ws.on('error', (error) => {
@@ -47,16 +52,10 @@ export class RealtimeClient extends EventEmitter {
       type: 'session.update',
       session: {
         modalities: ['text', 'audio'],
-        instructions: `You are a laughter detection system for a game where players must sing without laughing. 
-        Listen carefully to the audio stream for any form of laughter, giggling, chuckling, or similar sounds. 
-        When you detect laughter, immediately call the report_laughter function.
-        Do NOT respond with text or audio, only use the function when laughter is detected.`,
+        instructions: `You are a laughter detection system. Listen for any laughter, giggling, chuckling, or similar sounds. When detected, call the report_laughter function.`,
         voice: 'alloy',
         input_audio_format: 'pcm16',
         output_audio_format: 'pcm16',
-        input_audio_transcription: {
-          model: 'whisper-1'
-        },
         turn_detection: {
           type: 'server_vad',
           threshold: 0.5,
@@ -66,35 +65,24 @@ export class RealtimeClient extends EventEmitter {
         tools: [{
           type: 'function',
           name: 'report_laughter',
-          description: 'Report when laughter is detected in the audio stream',
+          description: 'Report when laughter is detected',
           parameters: {
             type: 'object',
             properties: {
-              detected: { 
-                type: 'boolean',
-                description: 'Whether laughter was detected'
-              },
-              confidence: { 
-                type: 'number', 
-                minimum: 0, 
-                maximum: 1,
-                description: 'Confidence level of detection'
-              },
+              detected: { type: 'boolean' },
+              confidence: { type: 'number', minimum: 0, maximum: 1 },
               laughterType: { 
                 type: 'string', 
-                enum: ['giggling', 'chuckling', 'loud_laughter', 'snickering'],
-                description: 'Type of laughter detected'
+                enum: ['giggling', 'chuckling', 'loud_laughter', 'snickering']
               },
               intensity: { 
                 type: 'string', 
-                enum: ['subtle', 'moderate', 'intense'],
-                description: 'Intensity of the laughter'
+                enum: ['subtle', 'moderate', 'intense']
               }
             },
             required: ['detected', 'confidence', 'laughterType', 'intensity']
           }
-        }],
-        tool_choice: 'auto'
+        }]
       }
     };
 
