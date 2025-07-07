@@ -2,8 +2,42 @@
 import http from 'http';
 import { WebSocketServer } from 'ws';
 import { randomUUID } from 'crypto';
+import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
+import { RealtimeClient } from './realtime-client.js';
 
 const PORT = process.env.PORT || 8080;
+
+// Store OpenAI API key
+let apiKey = null;
+const secretsClient = new SecretsManagerClient({ region: 'us-east-1' });
+
+// Store active Realtime API connections per client
+const realtimeConnections = new Map();
+
+async function getApiKey() {
+  if (apiKey) return apiKey;
+  
+  try {
+    const command = new GetSecretValueCommand({ SecretId: 'fertilia/openai' });
+    const response = await secretsClient.send(command);
+    const secret = JSON.parse(response.SecretString);
+    apiKey = secret.api_key;
+    console.log('[Server] OpenAI API key retrieved successfully');
+    return apiKey;
+  } catch (error) {
+    console.error('[Server] Failed to get API key from Secrets Manager:', error);
+    // Use environment variable as fallback
+    if (process.env.OPENAI_API_KEY) {
+      apiKey = process.env.OPENAI_API_KEY;
+      console.log('[Server] Using API key from environment variable');
+      return apiKey;
+    }
+    throw new Error('No OpenAI API key available');
+  }
+}
+
+// Initialize API key on startup
+getApiKey().catch(console.error);
 
 /**
  * Lightweight health check for ALB.
@@ -67,11 +101,48 @@ wss.on('connection', (ws, req) => {
 
       switch (message.type) {
         case 'startSession':
-          ws.send(JSON.stringify({
-            type: 'sessionStarted',
-            playerId: message.playerId,
-            timestamp: Date.now()
-          }));
+          // Create Realtime API connection for this client
+          try {
+            const key = await getApiKey();
+            const realtimeClient = new RealtimeClient(key);
+            
+            // Set up laughter detection handler
+            realtimeClient.on('laughter.detected', (data) => {
+              console.log(JSON.stringify({ 
+                evt: 'laughter_detected', 
+                id, 
+                data 
+              }));
+              
+              ws.send(JSON.stringify({
+                type: 'laughterDetected',
+                data: {
+                  ...data,
+                  timestamp: Date.now()
+                }
+              }));
+            });
+
+            realtimeClient.on('error', (error) => {
+              console.error(`[Server] Realtime API error for ${id}:`, error);
+            });
+
+            await realtimeClient.connect();
+            realtimeConnections.set(id, realtimeClient);
+            
+            ws.send(JSON.stringify({
+              type: 'sessionStarted',
+              playerId: message.playerId,
+              timestamp: Date.now()
+            }));
+          } catch (error) {
+            console.error(`[Server] Failed to start session for ${id}:`, error);
+            ws.send(JSON.stringify({
+              type: 'error',
+              error: 'Failed to initialize laughter detection',
+              timestamp: Date.now()
+            }));
+          }
           break;
 
         case 'audioData':
@@ -83,36 +154,27 @@ wss.on('connection', (ws, req) => {
             timestamp: Date.now() 
           }));
           
-          // Send acknowledgment
+          // Send acknowledgment immediately
           ws.send(JSON.stringify({
             type: 'audioReceived',
             timestamp: Date.now()
           }));
           
-          // Mock laughter detection for testing (increased to 30% for easier testing)
-          const laughterChance = Math.random();
-          if (laughterChance < 0.3) { // 30% chance to simulate laughter
-            const laughterData = {
-              confidence: 0.6 + Math.random() * 0.4,
-              laughterType: ['chuckling', 'giggling', 'loud_laughter', 'snickering'][Math.floor(Math.random() * 4)],
-              intensity: ['subtle', 'moderate', 'intense'][Math.floor(Math.random() * 3)],
-              timestamp: Date.now()
-            };
-            
-            console.log(JSON.stringify({ 
-              evt: 'laughter_detected', 
-              id, 
-              data: laughterData 
-            }));
-            
-            ws.send(JSON.stringify({
-              type: 'laughterDetected',
-              data: laughterData
-            }));
+          // Forward audio to Realtime API
+          const realtimeClient = realtimeConnections.get(id);
+          if (realtimeClient && (message.data || message.audio)) {
+            realtimeClient.sendAudio(message.data || message.audio);
           }
           break;
 
         case 'endSession':
+          // Clean up Realtime API connection
+          const clientToEnd = realtimeConnections.get(id);
+          if (clientToEnd) {
+            clientToEnd.disconnect();
+            realtimeConnections.delete(id);
+          }
+          
           ws.send(JSON.stringify({
             type: 'sessionEnded',
             timestamp: Date.now()
@@ -142,9 +204,16 @@ wss.on('connection', (ws, req) => {
     }
   });
 
-  ws.on('close', (code, reason) =>
-    console.log(JSON.stringify({ evt: 'ws_close', id, code, reason: reason.toString() }))
-  );
+  ws.on('close', (code, reason) => {
+    console.log(JSON.stringify({ evt: 'ws_close', id, code, reason: reason.toString() }));
+    
+    // Clean up Realtime API connection
+    const realtimeClient = realtimeConnections.get(id);
+    if (realtimeClient) {
+      realtimeClient.disconnect();
+      realtimeConnections.delete(id);
+    }
+  });
 
   ws.on('error', (error) =>
     console.log(JSON.stringify({ evt: 'ws_error', id, error: error.message }))

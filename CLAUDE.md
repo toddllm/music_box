@@ -14,11 +14,26 @@ All sensitive configuration is stored in AWS Secrets Manager with the prefix `mu
 - `./deploy.sh` - Deploy to AWS
 
 ## Architecture
-- Node.js/Express backend with Socket.IO for real-time communication
-- OpenAI Whisper API for speech-to-text
-- GPT-4 for laugh detection analysis
-- AWS Lambda + API Gateway for serverless deployment
+- Node.js WebSocket server for real-time audio streaming
+- OpenAI Realtime API with GPT-4o for direct audio laughter detection
+- AWS ECS Fargate for persistent WebSocket connections
+- Application Load Balancer with WebSocket support
 - CloudFront + S3 for static content delivery
+
+## OpenAI Realtime API Configuration
+
+**Model**: `gpt-4o-realtime-preview-2024-12-17`
+- Real-time audio streaming via WebSocket
+- Direct audio analysis without transcription
+- Function calling for laughter detection
+- Low latency (~300ms)
+
+**THIS IS THE WHOLE POINT OF OUR WEBSOCKET INFRASTRUCTURE!**
+The Realtime API requires:
+1. Persistent WebSocket connection to OpenAI
+2. Audio streaming in PCM16 format
+3. Server-side relay between client and OpenAI
+4. Function calling to report laughter events
 
 ## Testing
 Before deployment:
