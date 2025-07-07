@@ -25,7 +25,8 @@ env:
 
 jobs:
   build-mixer:
-    if: github.event_name == 'workflow_dispatch' && (github.event.inputs.service == 'all' || github.event.inputs.service == 'mixer') || github.event_name == 'push'
+    # Skip mixer build until mixer directory exists
+    if: false
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -100,8 +101,8 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
   deploy-mixer:
-    needs: build-mixer
-    if: success()
+    # Skip mixer deployment until mixer directory exists
+    if: false
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -162,7 +163,7 @@ jobs:
             '.containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
           
           # Register the new task definition
-          NEW_TASK_ARN=$(echo $NEW_TASK_DEF | \
+          NEW_TASK_ARN=$(echo "$NEW_TASK_DEF" | \
             aws ecs register-task-definition \
             --cli-input-json file:///dev/stdin \
             --query 'taskDefinition.taskDefinitionArn' \
@@ -176,8 +177,8 @@ jobs:
             --force-new-deployment
 
   smoke-test:
-    needs: [deploy-mixer, deploy-realtime]
-    if: always() && (needs.deploy-mixer.result == 'success' || needs.deploy-realtime.result == 'success')
+    needs: [deploy-realtime]
+    if: always() && needs.deploy-realtime.result == 'success'
     runs-on: ubuntu-latest
     
     steps:

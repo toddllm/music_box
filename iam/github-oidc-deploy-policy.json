@@ -33,7 +33,10 @@
         "cloudformation:DescribeChangeSet",
         "cloudformation:ListChangeSets"
       ],
-      "Resource": "arn:aws:cloudformation:us-east-1:717984198385:stack/*"
+      "Resource": [
+        "arn:aws:cloudformation:us-east-1:717984198385:stack/*",
+        "arn:aws:cloudformation:us-east-1:aws:transform/Serverless-2016-10-31"
+      ]
     },
     {
       "Effect": "Allow",
