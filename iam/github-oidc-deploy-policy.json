@@ -27,12 +27,13 @@
         "cloudformation:ValidateTemplate",
         "cloudformation:GetTemplateSummary",
         "cloudformation:ListStackResources",
-        "cloudformation:GetStackPolicy"
+        "cloudformation:GetStackPolicy",
+        "cloudformation:CreateChangeSet",
+        "cloudformation:ExecuteChangeSet",
+        "cloudformation:DescribeChangeSet",
+        "cloudformation:ListChangeSets"
       ],
-      "Resource": [
-        "arn:aws:cloudformation:us-east-1:717984198385:stack/noagenda-mixer-production/*",
-        "arn:aws:cloudformation:us-east-1:717984198385:stack/music-box-*/*"
-      ]
+      "Resource": "arn:aws:cloudformation:us-east-1:717984198385:stack/*"
     },
     {
       "Effect": "Allow",
@@ -70,6 +71,39 @@
         "arn:aws:s3:::music-box-*",
         "arn:aws:s3:::music-box-*/*"
       ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "apigateway:*",
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogGroups"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:CreateTable",
+        "dynamodb:UpdateTable",
+        "dynamodb:DeleteTable",
+        "dynamodb:DescribeTable",
+        "dynamodb:ListTables",
+        "dynamodb:PutItem",
+        "dynamodb:GetItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem"
+      ],
+      "Resource": "arn:aws:dynamodb:us-east-1:717984198385:table/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "secretsmanager:GetSecretValue"
+      ],
+      "Resource": "arn:aws:secretsmanager:us-east-1:717984198385:secret:*"
     }
   ]
 }

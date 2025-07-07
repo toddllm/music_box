@@ -195,24 +195,54 @@ jobs:
           # Test realtime WebSocket (if deployed)
           if [ "${{ needs.deploy-realtime.result }}" == "success" ]; then
             echo "Testing WebSocket endpoint..."
-            npm install ws
-            node -e "
-              const WebSocket = require('ws');
-              const ws = new WebSocket('wss://music-box-realtime-alb-417242201.us-east-1.elb.amazonaws.com/', {
-                rejectUnauthorized: false
-              });
-              ws.on('open', () => {
-                console.log('✅ WebSocket connected');
-                ws.close();
-                process.exit(0);
-              });
-              ws.on('error', (err) => {
-                console.error('❌ WebSocket error:', err.message);
-                process.exit(1);
-              });
-              setTimeout(() => {
-                console.error('❌ WebSocket timeout');
-                process.exit(1);
-              }, 10000);
-            "
+            
+            # Use the ws-test.js script if it exists
+            if [ -f "ws-test.js" ]; then
+              npm install ws
+              node ws-test.js || exit 1
+            else
+              # Fallback inline test
+              npm install ws
+              node -e "
+                const WebSocket = require('ws');
+                const ws = new WebSocket('wss://music-box-realtime-alb-417242201.us-east-1.elb.amazonaws.com/', {
+                  rejectUnauthorized: false
+                });
+                
+                let testPassed = false;
+                
+                ws.on('open', () => {
+                  console.log('✅ WebSocket connected');
+                  ws.send(JSON.stringify({ type: 'ping' }));
+                });
+                
+                ws.on('message', (data) => {
+                  console.log('✅ Received:', data.toString());
+                  if (data.toString().includes('pong') || data.toString().includes('welcome')) {
+                    testPassed = true;
+                    ws.close();
+                  }
+                });
+                
+                ws.on('close', () => {
+                  if (testPassed) {
+                    console.log('✅ WebSocket test passed');
+                    process.exit(0);
+                  } else {
+                    console.error('❌ WebSocket test failed - no valid response');
+                    process.exit(1);
+                  }
+                });
+                
+                ws.on('error', (err) => {
+                  console.error('❌ WebSocket error:', err.message);
+                  process.exit(1);
+                });
+                
+                setTimeout(() => {
+                  console.error('❌ WebSocket timeout');
+                  process.exit(1);
+                }, 15000);
+              "
+            fi
           fi
