@@ -1,0 +1,218 @@
+name: Build & Deploy Music Box Services
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'mixer/**'
+      - 'realtime-service/**'
+      - '.github/workflows/deploy-services.yml'
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Service to deploy'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - mixer
+          - realtime
+
+env:
+  AWS_REGION: us-east-1
+  AWS_ACCOUNT_ID: 717984198385
+
+jobs:
+  build-mixer:
+    if: github.event_name == 'workflow_dispatch' && (github.event.inputs.service == 'all' || github.event.inputs.service == 'mixer') || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔑 Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-oidc-ecr-push
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: 🐳 Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: 📦 Build and push mixer image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: noagenda-mixer-production
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          cd mixer
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: 💾 Save image tag
+        run: echo "${{ github.sha }}" > mixer-image-tag.txt
+      
+      - name: 📤 Upload image tag
+        uses: actions/upload-artifact@v3
+        with:
+          name: mixer-image-tag
+          path: mixer-image-tag.txt
+
+  build-realtime:
+    if: github.event_name == 'workflow_dispatch' && (github.event.inputs.service == 'all' || github.event.inputs.service == 'realtime') || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔑 Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-oidc-ecr-push
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: 🐳 Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: 📦 Build and push realtime service image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: music-box-realtime
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          cd realtime-service
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+  deploy-mixer:
+    needs: build-mixer
+    if: success()
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔑 Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-oidc-deploy
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: 📥 Download image tag
+        uses: actions/download-artifact@v3
+        with:
+          name: mixer-image-tag
+
+      - name: 🚀 Deploy mixer via Serverless
+        run: |
+          IMAGE_TAG=$(cat mixer-image-tag.txt)
+          cd mixer
+          npm install -g serverless
+          serverless deploy --config serverless-production.yml --stage prod \
+            --param="imageTag=$IMAGE_TAG"
+
+  deploy-realtime:
+    needs: build-realtime
+    if: success()
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔑 Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-oidc-deploy
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: 🚀 Update ECS service
+        run: |
+          # Register new task definition with updated image
+          TASK_DEFINITION=$(aws ecs describe-task-definition \
+            --task-definition music-box-realtime-service \
+            --query 'taskDefinition' \
+            --output json)
+          
+          # Update the image in the task definition
+          NEW_TASK_DEF=$(echo $TASK_DEFINITION | \
+            jq --arg IMAGE "${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/music-box-realtime:${{ github.sha }}" \
+            '.containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
+          
+          # Register the new task definition
+          NEW_TASK_ARN=$(echo $NEW_TASK_DEF | \
+            aws ecs register-task-definition \
+            --cli-input-json file:///dev/stdin \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
+          
+          # Update the service
+          aws ecs update-service \
+            --cluster music-box-realtime-cluster \
+            --service music-box-realtime-service \
+            --task-definition $NEW_TASK_ARN \
+            --force-new-deployment
+
+  smoke-test:
+    needs: [deploy-mixer, deploy-realtime]
+    if: always() && (needs.deploy-mixer.result == 'success' || needs.deploy-realtime.result == 'success')
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Run smoke tests
+        run: |
+          # Test mixer endpoint (if deployed)
+          if [ "${{ needs.deploy-mixer.result }}" == "success" ]; then
+            echo "Testing mixer endpoint..."
+            # Add mixer smoke test here
+          fi
+          
+          # Test realtime WebSocket (if deployed)
+          if [ "${{ needs.deploy-realtime.result }}" == "success" ]; then
+            echo "Testing WebSocket endpoint..."
+            npm install ws
+            node -e "
+              const WebSocket = require('ws');
+              const ws = new WebSocket('wss://music-box-realtime-alb-417242201.us-east-1.elb.amazonaws.com/', {
+                rejectUnauthorized: false
+              });
+              ws.on('open', () => {
+                console.log('✅ WebSocket connected');
+                ws.close();
+                process.exit(0);
+              });
+              ws.on('error', (err) => {
+                console.error('❌ WebSocket error:', err.message);
+                process.exit(1);
+              });
+              setTimeout(() => {
+                console.error('❌ WebSocket timeout');
+                process.exit(1);
+              }, 10000);
+            "
+          fi

@@ -1,0 +1,36 @@
+{
+  "family": "music-box-realtime-service",
+  "requiresCompatibilities": ["FARGATE"],
+  "networkMode": "awsvpc",
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::717984198385:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::717984198385:role/music-box-realtime-task-role",
+  "containerDefinitions": [
+    {
+      "name": "realtime-service",
+      "image": "node:20-alpine",
+      "portMappings": [
+        { "containerPort": 8080, "protocol": "tcp" },
+        { "containerPort": 8081, "protocol": "tcp" }
+      ],
+      "essential": true,
+      "environment": [
+        { "name": "NODE_ENV", "value": "production" },
+        { "name": "PORT", "value": "8080" }
+      ],
+      "command": [
+        "sh", "-c", 
+        "npm install ws && node --input-type=module -e \"import http from 'http'; import { WebSocketServer } from 'ws'; import { randomUUID } from 'crypto'; const PORT = 8080; const healthServer = http.createServer((req, res) => { if (req.url === '/health') { res.writeHead(200); res.end('ok'); } else { res.writeHead(404); res.end(); } }); healthServer.listen(8081, () => console.log(JSON.stringify({ evt: 'health_start', port: 8081 }))); const server = http.createServer((req, res) => { res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ service: 'Music Box WebSocket', status: 'ready', protocol: 'WSS', connections: wss.clients.size })); }); const wss = new WebSocketServer({ server, path: '/' }); wss.on('connection', (ws, req) => { const id = randomUUID(); console.log(JSON.stringify({ evt: 'ws_open', id })); ws.send(JSON.stringify({ type: 'welcome', clientId: id, message: 'WebSocket Connected', protocol: 'WSS' })); ws.on('message', (data, isBinary) => { try { if (isBinary) return; const msg = JSON.parse(data.toString()); console.log(JSON.stringify({ evt: 'msg', id, type: msg.type })); if (msg.type === 'ping') ws.send(JSON.stringify({ type: 'pong' })); else ws.send(JSON.stringify({ type: 'echo', original: msg })); } catch (e) { console.error(e.message); } }); ws.on('close', () => console.log(JSON.stringify({ evt: 'ws_close', id }))); }); process.on('SIGTERM', () => { wss.close(() => process.exit(0)); }); server.listen(PORT, () => console.log(JSON.stringify({ evt: 'start', port: PORT, health: 8081 })));\""
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-region": "us-east-1",
+          "awslogs-group": "/ecs/music-box-realtime",
+          "awslogs-stream-prefix": "task"
+        }
+      }
+    }
+  ]
+}

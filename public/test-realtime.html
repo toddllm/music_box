@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Realtime Laughter Detection Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+        #status { margin-top: 20px; padding: 10px; background: #f0f0f0; }
+        .error { color: red; }
+        .success { color: green; }
+        .warning { color: orange; }
+        #detections { margin-top: 20px; }
+        .detection { 
+            padding: 10px; 
+            margin: 5px 0; 
+            background: #ffe0e0; 
+            border-radius: 5px;
+            animation: fadeIn 0.3s ease-in;
+        }
+        #debug { 
+            margin-top: 20px; 
+            padding: 10px; 
+            background: #f0f0f0; 
+            font-family: monospace; 
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .debug-entry {
+            margin: 2px 0;
+            padding: 2px;
+        }
+        .debug-sent { color: #0066cc; }
+        .debug-received { color: #006600; }
+        .debug-error { color: #cc0000; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Realtime Laughter Detection Test</h1>
+    
+    <button id="connectBtn">Connect to WebSocket</button>
+    <button id="startBtn" disabled>Start Performance</button>
+    <button id="stopBtn" disabled>Stop Performance</button>
+    
+    <div id="status">Ready to connect...</div>
+    <div id="detections"></div>
+    
+    <h3>Debug Log</h3>
+    <div id="debug"></div>
+    
+    <script>
+        let ws = null;
+        let mediaStream = null;
+        let audioContext = null;
+        let scriptProcessor = null;
+        let isStreaming = false;
+        
+        const connectBtn = document.getElementById('connectBtn');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const status = document.getElementById('status');
+        const detections = document.getElementById('detections');
+        const debug = document.getElementById('debug');
+        let audioChunkCount = 0;
+        
+        connectBtn.addEventListener('click', connectWebSocket);
+        startBtn.addEventListener('click', startPerformance);
+        stopBtn.addEventListener('click', stopPerformance);
+        
+        function connectWebSocket() {
+            const wsUrl = 'wss://w4c66zvhz0.execute-api.us-east-1.amazonaws.com/production';
+            status.textContent = 'Connecting to WebSocket...';
+            
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = () => {
+                status.innerHTML = '<span class="success">Connected! Now join the game.</span>';
+                connectBtn.disabled = true;
+                
+                // Send test join-game message
+                const playerName = 'Test Player ' + Math.floor(Math.random() * 1000);
+                const joinMsg = {
+                    action: 'join-game',
+                    data: playerName
+                };
+                ws.send(JSON.stringify(joinMsg));
+                addDebugEntry(`Sent: join-game (${playerName})`, 'sent');
+            };
+            
+            ws.onmessage = (event) => {
+                const message = JSON.parse(event.data);
+                console.log('Received:', message);
+                
+                addDebugEntry(`Received: ${message.event}`, 'received', message.data);
+                
+                switch (message.event) {
+                    case 'player-joined':
+                        status.innerHTML = '<span class="success">Joined game! Ready to start performance.</span>';
+                        startBtn.disabled = false;
+                        break;
+                        
+                    case 'performanceStarted':
+                        status.innerHTML = '<span class="success">Performance tracking started! Speak or laugh into the microphone.</span>';
+                        break;
+                        
+                    case 'laughterDetected':
+                        handleLaughterDetection(message.data);
+                        break;
+                        
+                    case 'error':
+                        status.innerHTML = `<span class="error">Error: ${message.data.message}</span>`;
+                        break;
+                }
+            };
+            
+            ws.onerror = (error) => {
+                status.innerHTML = '<span class="error">WebSocket error!</span>';
+                console.error('WebSocket error:', error);
+            };
+            
+            ws.onclose = () => {
+                status.innerHTML = '<span class="warning">WebSocket disconnected.</span>';
+                connectBtn.disabled = false;
+                startBtn.disabled = true;
+                stopBtn.disabled = true;
+                stopPerformance();
+            };
+        }
+        
+        async function startPerformance() {
+            try {
+                // Request microphone access
+                mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        channelCount: 1,
+                        sampleRate: 16000,
+                        echoCancellation: true,
+                        noiseSuppression: true
+                    } 
+                });
+                
+                // Create audio context
+                audioContext = new (window.AudioContext || window.webkitAudioContext)({
+                    sampleRate: 16000
+                });
+                
+                const source = audioContext.createMediaStreamSource(mediaStream);
+                
+                // Create script processor for audio streaming
+                const bufferSize = 4096;
+                scriptProcessor = audioContext.createScriptProcessor(bufferSize, 1, 1);
+                
+                // Notify server to start performance
+                const startMsg = {
+                    action: 'startPerformance',
+                    data: {}
+                };
+                ws.send(JSON.stringify(startMsg));
+                addDebugEntry('Sent: startPerformance', 'sent');
+                
+                scriptProcessor.onaudioprocess = (audioProcessingEvent) => {
+                    if (!isStreaming) return;
+                    
+                    const inputBuffer = audioProcessingEvent.inputBuffer;
+                    const inputData = inputBuffer.getChannelData(0);
+                    
+                    // Convert Float32Array to Int16Array (PCM16)
+                    const pcm16 = new Int16Array(inputData.length);
+                    for (let i = 0; i < inputData.length; i++) {
+                        const s = Math.max(-1, Math.min(1, inputData[i]));
+                        pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                    }
+                    
+                    // Convert to base64 and send via WebSocket
+                    const base64Audio = btoa(String.fromCharCode.apply(null, new Uint8Array(pcm16.buffer)));
+                    
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                        audioChunkCount++;
+                        const audioMsg = {
+                            action: 'audioData',
+                            data: { audio: base64Audio }
+                        };
+                        ws.send(JSON.stringify(audioMsg));
+                        
+                        // Only log every 10th chunk to avoid spam
+                        if (audioChunkCount % 10 === 0) {
+                            addDebugEntry(`Sent audio chunk #${audioChunkCount} (${base64Audio.length} bytes)`, 'sent');
+                        }
+                    }
+                };
+                
+                source.connect(scriptProcessor);
+                scriptProcessor.connect(audioContext.destination);
+                
+                isStreaming = true;
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                
+                status.innerHTML = '<span class="success">Streaming audio... Try laughing or speaking!</span>';
+                
+            } catch (error) {
+                status.innerHTML = `<span class="error">Error accessing microphone: ${error.message}</span>`;
+                console.error('Microphone error:', error);
+            }
+        }
+        
+        function stopPerformance() {
+            isStreaming = false;
+            
+            if (scriptProcessor) {
+                scriptProcessor.disconnect();
+                scriptProcessor = null;
+            }
+            
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+            
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+            
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                const endMsg = {
+                    action: 'endPerformance',
+                    data: {}
+                };
+                ws.send(JSON.stringify(endMsg));
+                addDebugEntry('Sent: endPerformance', 'sent');
+            }
+            
+            audioChunkCount = 0;
+            
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            
+            status.innerHTML = '<span class="warning">Performance stopped.</span>';
+        }
+        
+        function handleLaughterDetection(data) {
+            const detection = document.createElement('div');
+            detection.className = 'detection';
+            detection.innerHTML = `
+                <strong>🚨 Laughter Detected!</strong><br>
+                Type: ${data.laughterType}<br>
+                Confidence: ${Math.round(data.confidence * 100)}%<br>
+                Time: ${new Date().toLocaleTimeString()}<br>
+                ${data.transcription ? `Transcription: "${data.transcription}"` : ''}
+            `;
+            detections.insertBefore(detection, detections.firstChild);
+            
+            // Keep only last 10 detections
+            while (detections.children.length > 10) {
+                detections.removeChild(detections.lastChild);
+            }
+        }
+        
+        function addDebugEntry(message, type = 'info', data = null) {
+            const entry = document.createElement('div');
+            entry.className = `debug-entry debug-${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            
+            let content = `[${timestamp}] ${message}`;
+            if (data) {
+                content += `\n${JSON.stringify(data, null, 2)}`;
+            }
+            
+            entry.textContent = content;
+            debug.appendChild(entry);
+            
+            // Keep only last 50 entries
+            while (debug.children.length > 50) {
+                debug.removeChild(debug.firstChild);
+            }
+            
+            // Auto-scroll to bottom
+            debug.scrollTop = debug.scrollHeight;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Batch Audio Analysis Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+        #status { margin-top: 20px; padding: 10px; background: #f0f0f0; }
+        .error { color: red; }
+        .success { color: green; }
+        .warning { color: orange; }
+        #results { margin-top: 20px; }
+        .result { 
+            padding: 10px; 
+            margin: 5px 0; 
+            background: #e0e0e0; 
+            border-radius: 5px;
+        }
+        .laughter-detected {
+            background: #ffe0e0;
+            border: 2px solid #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Batch Audio Analysis Test</h1>
+    <p>This uses the traditional batch approach - record audio, then analyze it.</p>
+    
+    <button id="recordBtn">Start Recording (5 seconds)</button>
+    
+    <div id="status">Ready to record...</div>
+    <div id="results"></div>
+    
+    <script>
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+        
+        const recordBtn = document.getElementById('recordBtn');
+        const status = document.getElementById('status');
+        const results = document.getElementById('results');
+        
+        recordBtn.addEventListener('click', startRecording);
+        
+        async function startRecording() {
+            if (isRecording) return;
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream, {
+                    mimeType: 'audio/webm;codecs=opus',
+                    audioBitsPerSecond: 16000
+                });
+                
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+                
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    stream.getTracks().forEach(track => track.stop());
+                    await analyzeAudio(audioBlob);
+                };
+                
+                mediaRecorder.start();
+                isRecording = true;
+                recordBtn.disabled = true;
+                
+                let countdown = 5;
+                const interval = setInterval(() => {
+                    status.innerHTML = `<span class="warning">Recording... ${countdown} seconds remaining</span>`;
+                    countdown--;
+                    if (countdown < 0) {
+                        clearInterval(interval);
+                        mediaRecorder.stop();
+                        isRecording = false;
+                        recordBtn.disabled = false;
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                status.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+                console.error('Error accessing microphone:', error);
+            }
+        }
+        
+        async function analyzeAudio(audioBlob) {
+            status.innerHTML = 'Analyzing audio...';
+            
+            try {
+                // Convert to base64
+                const reader = new FileReader();
+                const base64Promise = new Promise((resolve) => {
+                    reader.onloadend = () => {
+                        const base64 = reader.result.split(',')[1];
+                        resolve(base64);
+                    };
+                });
+                reader.readAsDataURL(audioBlob);
+                const audioData = await base64Promise;
+                
+                // Send to API
+                const response = await fetch('/api/analyze-audio-base64', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        audioData,
+                        mimeType: 'audio/webm'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displayResult(result);
+                } else {
+                    status.innerHTML = `<span class="error">Error: ${result.error}</span>`;
+                }
+                
+            } catch (error) {
+                status.innerHTML = `<span class="error">Network error: ${error.message}</span>`;
+                console.error('Error:', error);
+            }
+        }
+        
+        function displayResult(result) {
+            status.innerHTML = '<span class="success">Analysis complete!</span>';
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.className = result.hasLaughter ? 'result laughter-detected' : 'result';
+            
+            const time = new Date().toLocaleTimeString();
+            resultDiv.innerHTML = `
+                <strong>${result.hasLaughter ? '🚨 LAUGHTER DETECTED!' : '✅ No laughter detected'}</strong><br>
+                Time: ${time}<br>
+                Transcription: "${result.transcription || '(empty)'}"<br>
+                Confidence: ${result.confidence}%<br>
+                ${result.laughterType ? `Type: ${result.laughterType}<br>` : ''}
+                ${result.explanation ? `Details: ${result.explanation}<br>` : ''}
+                Method: ${result.debug?.model || 'whisper + gpt-4o-mini'}
+            `;
+            
+            results.insertBefore(resultDiv, results.firstChild);
+            
+            // Keep only last 5 results
+            while (results.children.length > 5) {
+                results.removeChild(results.lastChild);
+            }
+        }
+    </script>
+</body>
+</html>

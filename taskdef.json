@@ -1,0 +1,39 @@
+{
+  "family": "music-box-realtime-service",
+  "requiresCompatibilities": ["FARGATE"],
+  "networkMode": "awsvpc",
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::717984198385:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::717984198385:role/music-box-realtime-task-role",
+  "containerDefinitions": [
+    {
+      "name": "realtime-service",
+      "image": "717984198385.dkr.ecr.us-east-1.amazonaws.com/music-box-realtime:ws-v2",
+      "portMappings": [
+        { "containerPort": 8080, "protocol": "tcp" },
+        { "containerPort": 8081, "protocol": "tcp" }
+      ],
+      "essential": true,
+      "environment": [
+        { "name": "NODE_ENV", "value": "production" },
+        { "name": "PORT", "value": "8080" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-region": "us-east-1",
+          "awslogs-group": "/ecs/music-box-realtime",
+          "awslogs-stream-prefix": "task"
+        }
+      },
+      "healthCheck": {
+        "command": ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8081/health || exit 1"],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 10
+      }
+    }
+  ]
+}

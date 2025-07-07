@@ -1,0 +1,20 @@
+{
+  "name": "music-box-realtime-service",
+  "version": "1.0.0",
+  "description": "Persistent WebSocket service for Music Box real-time laughter detection",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "ws": "^8.16.0",
+    "@aws-sdk/client-secrets-manager": "^3.511.0",
+    "@aws-sdk/client-dynamodb": "^3.511.0",
+    "@aws-sdk/lib-dynamodb": "^3.511.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

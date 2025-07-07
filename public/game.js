@@ -2,6 +2,10 @@
 let socket;
 const WEBSOCKET_URL = 'wss://w4c66zvhz0.execute-api.us-east-1.amazonaws.com/production';
 
+// Audio streaming for Realtime API
+let audioStreamProcessor = null;
+let audioWorkletNode = null;
+
 function initializeWebSocket() {
   socket = new WebSocket(WEBSOCKET_URL);
   
@@ -16,6 +20,7 @@ function initializeWebSocket() {
   
   socket.onclose = () => {
     console.log('WebSocket disconnected');
+    stopAudioStreaming();
     setTimeout(initializeWebSocket, 3000); // Reconnect after 3 seconds
   };
   
@@ -68,6 +73,13 @@ function handleWebSocketMessage(event, data) {
     case 'not-your-turn':
       alert('It\'s not your turn!');
       break;
+    case 'laughterDetected':
+      // Handle real-time laughter detection
+      handleLaughterDetected(data);
+      break;
+    case 'performanceStarted':
+      console.log('Performance tracking started');
+      break;
   }
 }
 
@@ -80,7 +92,9 @@ let gameState = {
     mediaRecorder: null,
     audioChunks: [],
     audioContext: null,
-    analyser: null
+    analyser: null,
+    isStreaming: false,
+    stream: null
 };
 
 // Screen elements
@@ -162,31 +176,16 @@ function updatePlayersStatus() {
 async function toggleRecording() {
     if (!gameState.isRecording) {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            // Use lower quality for smaller file size
-            const options = {
-                mimeType: 'audio/webm;codecs=opus',
-                audioBitsPerSecond: 16000
-            };
+            // Start real-time audio streaming for laughter detection
+            await startAudioStreaming();
             
-            gameState.mediaRecorder = new MediaRecorder(stream, options);
-            gameState.audioChunks = [];
-
-            gameState.mediaRecorder.ondataavailable = (event) => {
-                gameState.audioChunks.push(event.data);
-            };
-
-            gameState.mediaRecorder.onstop = async () => {
-                const audioBlob = new Blob(gameState.audioChunks, { type: 'audio/webm' });
-                await submitPerformance(audioBlob);
-                stream.getTracks().forEach(track => track.stop());
-            };
-
-            gameState.mediaRecorder.start();
             gameState.isRecording = true;
             recordBtn.textContent = '⏹️ Stop Recording';
             recordBtn.classList.add('recording');
-            recordingStatus.textContent = 'Recording... Sing your heart out!';
+            recordingStatus.textContent = 'Recording... Sing your heart out! (Real-time laughter detection active)';
+
+            // Notify server that performance has started
+            sendWebSocketMessage('startPerformance', {});
 
             // Auto-stop after 30 seconds
             setTimeout(() => {
@@ -200,53 +199,104 @@ async function toggleRecording() {
             alert('Unable to access microphone. Please check your permissions.');
         }
     } else {
-        gameState.mediaRecorder.stop();
+        // Stop streaming and notify server
+        stopAudioStreaming();
+        sendWebSocketMessage('endPerformance', {});
+        
         gameState.isRecording = false;
         recordBtn.textContent = '🎤 Start Recording';
         recordBtn.classList.remove('recording');
-        recordingStatus.textContent = 'Processing your performance...';
+        recordingStatus.textContent = 'Performance ended.';
     }
 }
 
-async function submitPerformance(audioBlob) {
+// Real-time audio streaming functions
+async function startAudioStreaming() {
     try {
-        // Convert blob to base64
-        const reader = new FileReader();
-        const base64Promise = new Promise((resolve) => {
-            reader.onloadend = () => {
-                const base64 = reader.result.split(',')[1]; // Remove data:audio/webm;base64, prefix
-                resolve(base64);
-            };
+        gameState.stream = await navigator.mediaDevices.getUserMedia({ 
+            audio: {
+                channelCount: 1,
+                sampleRate: 16000,
+                echoCancellation: true,
+                noiseSuppression: true
+            } 
         });
-        reader.readAsDataURL(audioBlob);
-        const audioData = await base64Promise;
-
-        const response = await fetch('/api/analyze-audio-base64', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                audioData,
-                mimeType: 'audio/webm'
-            })
-        });
-
-        const result = await response.json();
         
-        if (result.hasLaughter) {
-            showNotification(`Oh no! Laughter detected (${result.confidence}% confidence)! You're eliminated!`);
-        } else {
-            showNotification('Great performance! No laughter detected!');
-        }
-
-        sendWebSocketMessage('performance-result', { hasLaughter: result.hasLaughter });
-        recordingStatus.textContent = '';
-
+        gameState.audioContext = new (window.AudioContext || window.webkitAudioContext)({
+            sampleRate: 16000
+        });
+        
+        const source = gameState.audioContext.createMediaStreamSource(gameState.stream);
+        
+        // Create script processor for audio streaming (will be replaced with AudioWorklet in production)
+        const bufferSize = 4096;
+        const scriptProcessor = gameState.audioContext.createScriptProcessor(bufferSize, 1, 1);
+        
+        scriptProcessor.onaudioprocess = (audioProcessingEvent) => {
+            if (!gameState.isStreaming) return;
+            
+            const inputBuffer = audioProcessingEvent.inputBuffer;
+            const inputData = inputBuffer.getChannelData(0);
+            
+            // Convert Float32Array to Int16Array (PCM16)
+            const pcm16 = new Int16Array(inputData.length);
+            for (let i = 0; i < inputData.length; i++) {
+                const s = Math.max(-1, Math.min(1, inputData[i]));
+                pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+            }
+            
+            // Convert to base64 and send via WebSocket
+            const base64Audio = btoa(String.fromCharCode.apply(null, new Uint8Array(pcm16.buffer)));
+            sendWebSocketMessage('audioData', { audio: base64Audio });
+        };
+        
+        source.connect(scriptProcessor);
+        scriptProcessor.connect(gameState.audioContext.destination);
+        
+        gameState.isStreaming = true;
+        gameState.audioStreamProcessor = scriptProcessor;
+        
     } catch (error) {
-        console.error('Error submitting performance:', error);
-        alert('Failed to analyze performance. Please try again.');
+        console.error('Error starting audio stream:', error);
+        throw error;
     }
+}
+
+function stopAudioStreaming() {
+    gameState.isStreaming = false;
+    
+    if (gameState.audioStreamProcessor) {
+        gameState.audioStreamProcessor.disconnect();
+        gameState.audioStreamProcessor = null;
+    }
+    
+    if (gameState.audioContext) {
+        gameState.audioContext.close();
+        gameState.audioContext = null;
+    }
+    
+    if (gameState.stream) {
+        gameState.stream.getTracks().forEach(track => track.stop());
+        gameState.stream = null;
+    }
+}
+
+function handleLaughterDetected(data) {
+    console.log('Laughter detected in real-time!', data);
+    
+    const message = `🚨 LAUGHTER DETECTED! 🚨\n` +
+                    `Type: ${data.laughterType}\n` +
+                    `Confidence: ${Math.round(data.confidence * 100)}%`;
+    
+    showNotification(message);
+    
+    // Stop recording immediately
+    if (gameState.isRecording) {
+        toggleRecording();
+    }
+    
+    // Notify game logic
+    sendWebSocketMessage('performance-result', { hasLaughter: true });
 }
 
 function startAudioVisualization() {

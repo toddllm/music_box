@@ -1,0 +1,23 @@
+# Artillery WebSocket Load Test Configuration
+config:
+  target: "wss://music-box-realtime-alb-417242201.us-east-1.elb.amazonaws.com"
+  phases:
+    - duration: 60   # burst phase
+      arrivalRate: 25
+    - duration: 300  # soak phase
+      arrivalRate: 10
+  engines:
+    ws: {}
+scenarios:
+  - engine: ws
+    flow:
+      - think: 1
+      - send: '{"type":"startSession","playerId":"test-{{$randomNumber(1000,9999)}}"}'
+      - think: 2
+      - send: '{"type":"audioData","data":"fakeBase64AudioData"}'
+      - think: 2
+      - send: '{"type":"audioData","data":"fakeBase64AudioData"}'
+      - think: 1
+      - send: '{"type":"ping"}'
+      - think: 1
+      - send: '{"bye":true}'

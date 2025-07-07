@@ -1,0 +1,28 @@
+{
+  "name": "music-box-realtime-build-inline",
+  "description": "Build Docker image for Music Box Realtime Service with inline source",
+  "source": {
+    "type": "NO_SOURCE",
+    "buildspec": "version: 0.2\nphases:\n  pre_build:\n    commands:\n      - echo Logging in to Amazon ECR...\n      - aws --version\n      - REPO_URI=717984198385.dkr.ecr.us-east-1.amazonaws.com/music-box-realtime\n      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 717984198385.dkr.ecr.us-east-1.amazonaws.com\n      - IMAGE_TAG=prod-$(date +%Y%m%d-%H%M%S)\n  build:\n    commands:\n      - echo Build started on `date`\n      - echo Creating realtime service files...\n      - mkdir -p realtime-service\n      - |\n        cat > realtime-service/package.json << 'EOF'\n        {\n          \"name\": \"music-box-realtime-service\",\n          \"version\": \"1.0.0\",\n          \"description\": \"Real-time laughter detection service for Music Box game\",\n          \"main\": \"server.js\",\n          \"scripts\": {\n            \"start\": \"node server.js\"\n          },\n          \"dependencies\": {\n            \"ws\": \"^8.18.0\",\n            \"@aws-sdk/client-secrets-manager\": \"^3.0.0\"\n          },\n          \"engines\": {\n            \"node\": \">=20.0.0\"\n          }\n        }\n        EOF\n      - |\n        cat > realtime-service/Dockerfile << 'EOF'\n        FROM node:20-alpine\n        WORKDIR /app\n        COPY package*.json ./\n        RUN npm ci --only=production && npm cache clean --force\n        COPY server.js ./\n        RUN addgroup -g 1001 -S nodejs && adduser -S -D -H -u 1001 -h /app -s /sbin/nologin -G nodejs -g nodejs nodejs && chown -R nodejs:nodejs /app\n        USER nodejs\n        EXPOSE 8080 8081\n        HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD wget --no-verbose --tries=1 --spider http://localhost:8081/ || exit 1\n        CMD [\"node\", \"server.js\"]\n        EOF\n      - |\n        cat > realtime-service/server.js << 'SERVEREOF'\n        const http = require('http');\n        const WebSocket = require('ws');\n        const { SecretsManagerClient, GetSecretValueCommand } = require('@aws-sdk/client-secrets-manager');\n        \n        console.log('[Server] Music Box Realtime Service starting...');\n        \n        // Simple working WebSocket server for now\n        const server = http.createServer((req, res) => {\n          res.writeHead(200, { 'Content-Type': 'text/plain' });\n          res.end('Music Box Realtime WebSocket Service - Production Ready');\n        });\n        \n        const wss = new WebSocket.Server({ server });\n        \n        wss.on('connection', (ws) => {\n          const clientId = 'client_' + Math.random().toString(36).substring(7);\n          console.log(`[${clientId}] Client connected`);\n          \n          ws.send(JSON.stringify({\n            type: 'welcome',\n            clientId: clientId,\n            message: 'Connected to Music Box Realtime Service - Production'\n          }));\n          \n          ws.on('message', (data) => {\n            try {\n              const message = JSON.parse(data);\n              console.log(`[${clientId}] Received:`, message.type);\n              \n              if (message.type === 'startSession') {\n                ws.send(JSON.stringify({\n                  type: 'sessionStarted',\n                  playerId: message.playerId\n                }));\n              }\n            } catch (error) {\n              console.error(`[${clientId}] Error:`, error);\n            }\n          });\n          \n          ws.on('close', () => {\n            console.log(`[${clientId}] Client disconnected`);\n          });\n        });\n        \n        server.listen(8080, () => {\n          console.log('[Server] Production WebSocket service listening on port 8080');\n        });\n        \n        const healthServer = http.createServer((req, res) => {\n          res.writeHead(200, { 'Content-Type': 'text/plain' });\n          res.end('OK');\n        });\n        \n        healthServer.listen(8081, () => {\n          console.log('[Server] Health check endpoint listening on port 8081');\n        });\n        SERVEREOF\n      - echo Building the Docker image...\n      - cd realtime-service\n      - docker build -t $REPO_URI:$IMAGE_TAG .\n      - docker tag $REPO_URI:$IMAGE_TAG $REPO_URI:latest\n  post_build:\n    commands:\n      - echo Build completed on `date`\n      - echo Pushing the Docker image...\n      - docker push $REPO_URI:$IMAGE_TAG\n      - docker push $REPO_URI:latest\n      - echo Image pushed successfully\n      - echo \"IMAGE_URI=$REPO_URI:$IMAGE_TAG\" > ../image_meta.env\nartifacts:\n  files:\n    - image_meta.env"
+  },
+  "artifacts": {
+    "type": "NO_ARTIFACTS"
+  },
+  "environment": {
+    "type": "LINUX_CONTAINER",
+    "image": "aws/codebuild/standard:7.0",
+    "computeType": "BUILD_GENERAL1_SMALL",
+    "privilegedMode": true,
+    "environmentVariables": [
+      {
+        "name": "AWS_DEFAULT_REGION",
+        "value": "us-east-1"
+      },
+      {
+        "name": "AWS_ACCOUNT_ID",
+        "value": "717984198385"
+      }
+    ]
+  },
+  "serviceRole": "arn:aws:iam::717984198385:role/codebuild-service-role"
+}

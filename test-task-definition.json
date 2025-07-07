@@ -1,0 +1,43 @@
+{
+  "family": "music-box-realtime-service",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "taskRoleArn": "arn:aws:iam::717984198385:role/music-box-realtime-task-role",
+  "executionRoleArn": "arn:aws:iam::717984198385:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "realtime-service",
+      "image": "node:20-alpine",
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "protocol": "tcp"
+        },
+        {
+          "containerPort": 8081,
+          "protocol": "tcp"
+        }
+      ],
+      "command": [
+        "sh", "-c", 
+        "echo 'const http = require(\"http\"); const server = http.createServer((req, res) => { res.writeHead(200); res.end(\"Music Box Test Service\"); }); server.listen(8080, () => console.log(\"Test server running on port 8080\")); const health = http.createServer((req, res) => { res.writeHead(200); res.end(\"OK\"); }); health.listen(8081);' > server.js && node server.js"
+      ],
+      "environment": [
+        {
+          "name": "NODE_ENV",
+          "value": "test"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/music-box-realtime",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}

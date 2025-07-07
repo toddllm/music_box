@@ -1,0 +1,89 @@
+{
+  "aggregate": {
+    "counters": {
+      "vusers.created_by_name.0": 150,
+      "vusers.created": 150,
+      "errors.Hostname/IP does not match certificate's altnames: Host: music-box-realtime-alb-417242201.us-east-1.elb.amazonaws.com. is not in the cert's altnames: DNS:ws.softwarecompanyinabox.com": 150,
+      "errors.ERR_TLS_CERT_ALTNAME_INVALID": 150,
+      "vusers.failed": 150
+    },
+    "rates": {},
+    "firstCounterAt": 1751860037200,
+    "lastCounterAt": 1751860066634,
+    "firstMetricAt": 1751860037200,
+    "lastMetricAt": 1751860066634,
+    "period": 1751860060000,
+    "summaries": {},
+    "histograms": {}
+  },
+  "intermediate": [
+    {
+      "counters": {
+        "vusers.created_by_name.0": 15,
+        "vusers.created": 15,
+        "errors.Hostname/IP does not match certificate's altnames: Host: music-box-realtime-alb-417242201.us-east-1.elb.amazonaws.com. is not in the cert's altnames: DNS:ws.softwarecompanyinabox.com": 15,
+        "errors.ERR_TLS_CERT_ALTNAME_INVALID": 15,
+        "vusers.failed": 15
+      },
+      "rates": {},
+      "firstCounterAt": 1751860037200,
+      "lastCounterAt": 1751860039645,
+      "firstMetricAt": 1751860037200,
+      "lastMetricAt": 1751860039645,
+      "period": "1751860030000",
+      "summaries": {},
+      "histograms": {}
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.0": 50,
+        "vusers.created": 50,
+        "errors.Hostname/IP does not match certificate's altnames: Host: music-box-realtime-alb-417242201.us-east-1.elb.amazonaws.com. is not in the cert's altnames: DNS:ws.softwarecompanyinabox.com": 50,
+        "errors.ERR_TLS_CERT_ALTNAME_INVALID": 50,
+        "vusers.failed": 50
+      },
+      "rates": {},
+      "firstCounterAt": 1751860040199,
+      "lastCounterAt": 1751860049653,
+      "firstMetricAt": 1751860040199,
+      "lastMetricAt": 1751860049653,
+      "period": "1751860040000",
+      "summaries": {},
+      "histograms": {}
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.0": 50,
+        "vusers.created": 50,
+        "errors.Hostname/IP does not match certificate's altnames: Host: music-box-realtime-alb-417242201.us-east-1.elb.amazonaws.com. is not in the cert's altnames: DNS:ws.softwarecompanyinabox.com": 50,
+        "errors.ERR_TLS_CERT_ALTNAME_INVALID": 50,
+        "vusers.failed": 50
+      },
+      "rates": {},
+      "firstCounterAt": 1751860050199,
+      "lastCounterAt": 1751860059554,
+      "firstMetricAt": 1751860050199,
+      "lastMetricAt": 1751860059554,
+      "period": "1751860050000",
+      "summaries": {},
+      "histograms": {}
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.0": 35,
+        "vusers.created": 35,
+        "errors.Hostname/IP does not match certificate's altnames: Host: music-box-realtime-alb-417242201.us-east-1.elb.amazonaws.com. is not in the cert's altnames: DNS:ws.softwarecompanyinabox.com": 35,
+        "errors.ERR_TLS_CERT_ALTNAME_INVALID": 35,
+        "vusers.failed": 35
+      },
+      "rates": {},
+      "firstCounterAt": 1751860060199,
+      "lastCounterAt": 1751860066634,
+      "firstMetricAt": 1751860060199,
+      "lastMetricAt": 1751860066634,
+      "period": "1751860060000",
+      "summaries": {},
+      "histograms": {}
+    }
+  ]
+}

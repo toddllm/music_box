@@ -1,0 +1,7 @@
+=== WebSocket Smoke Test Suite ===
+Target: wss://music-box-realtime-alb-417242201.us-east-1.elb.amazonaws.com/
+Started: Sun Jul  6 23:44:02 EDT 2025
+
+Test 1: WebSocket Handshake
+  Attempt 1: ✓ 101 Switching Protocols
+  Attempt 2: 

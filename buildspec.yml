@@ -1,0 +1,27 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - REPO_URI=$(aws ecr describe-repositories --repository-names music-box-realtime --query 'repositories[0].repositoryUri' --output text)
+      - aws ecr get-login-password | docker login --username AWS --password-stdin "$REPO_URI"
+      - IMAGE_TAG=${CODEBUILD_RESOLVED_SOURCE_VERSION:-latest}
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - cd realtime-service
+      - docker build -t $REPO_URI:$IMAGE_TAG .
+      - docker tag $REPO_URI:$IMAGE_TAG $REPO_URI:latest
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker push $REPO_URI:$IMAGE_TAG
+      - docker push $REPO_URI:latest
+      - printf '[{"name":"realtime","imageUri":"%s"}]' $REPO_URI:$IMAGE_TAG > ../imagedefinitions.json
+
+artifacts:
+  files: 
+    - imagedefinitions.json

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Persistent Realtime Service Test</title>
+    <script src="realtime-client.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+        input { padding: 10px; margin: 10px; font-size: 16px; width: 400px; }
+        #status { margin-top: 20px; padding: 10px; background: #f0f0f0; }
+        .error { color: red; }
+        .success { color: green; }
+        .warning { color: orange; }
+        #detections { margin-top: 20px; }
+        .detection { 
+            padding: 10px; 
+            margin: 5px 0; 
+            background: #ffe0e0; 
+            border-radius: 5px;
+            animation: fadeIn 0.3s ease-in;
+        }
+        #connectionInfo {
+            padding: 10px;
+            background: #e0f0ff;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Persistent Realtime Service Test</h1>
+    <p>This connects to the ECS-hosted persistent WebSocket service for real-time laughter detection.</p>
+    
+    <div>
+        <input type="text" id="serviceUrl" placeholder="wss://your-alb-dns.elb.amazonaws.com" value="wss://music-box-realtime-alb-417242201.us-east-1.elb.amazonaws.com/">
+        <br>
+        <small>For local testing, use ws://localhost:8080. For production, use your ALB WebSocket URL.</small>
+    </div>
+    
+    <div id="connectionInfo" style="display: none;">
+        <strong>Connected!</strong><br>
+        Client ID: <span id="clientId"></span>
+    </div>
+    
+    <button id="connectBtn">Connect to Service</button>
+    <button id="startBtn" disabled>Start Performance</button>
+    <button id="stopBtn" disabled>Stop Performance</button>
+    <button id="disconnectBtn" disabled>Disconnect</button>
+    
+    <div id="status">Ready to connect...</div>
+    <div id="detections"></div>
+    
+    <script>
+        let client = null;
+        
+        const serviceUrlInput = document.getElementById('serviceUrl');
+        const connectBtn = document.getElementById('connectBtn');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const status = document.getElementById('status');
+        const detections = document.getElementById('detections');
+        const connectionInfo = document.getElementById('connectionInfo');
+        const clientIdSpan = document.getElementById('clientId');
+        
+        connectBtn.addEventListener('click', connectToService);
+        startBtn.addEventListener('click', startPerformance);
+        stopBtn.addEventListener('click', stopPerformance);
+        disconnectBtn.addEventListener('click', disconnect);
+        
+        async function connectToService() {
+            const serviceUrl = serviceUrlInput.value.trim();
+            if (!serviceUrl) {
+                status.innerHTML = '<span class="error">Please enter a service URL</span>';
+                return;
+            }
+            
+            status.innerHTML = 'Connecting to service...';
+            
+            try {
+                client = new MusicBoxRealtimeClient(serviceUrl, handleLaughterDetection);
+                await client.connect();
+                
+                status.innerHTML = '<span class="success">Connected to realtime service!</span>';
+                connectBtn.disabled = true;
+                startBtn.disabled = false;
+                disconnectBtn.disabled = false;
+                
+                connectionInfo.style.display = 'block';
+                clientIdSpan.textContent = client.clientId;
+                
+            } catch (error) {
+                status.innerHTML = `<span class="error">Connection failed: ${error.message}</span>`;
+                console.error('Connection error:', error);
+            }
+        }
+        
+        async function startPerformance() {
+            if (!client) return;
+            
+            try {
+                const playerId = 'test-player-' + Math.floor(Math.random() * 1000);
+                await client.startPerformance(playerId);
+                
+                status.innerHTML = '<span class="success">Performance started! Speak or laugh into the microphone.</span>';
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                
+            } catch (error) {
+                status.innerHTML = `<span class="error">Failed to start performance: ${error.message}</span>`;
+                console.error('Start error:', error);
+            }
+        }
+        
+        function stopPerformance() {
+            if (!client) return;
+            
+            client.endPerformance();
+            
+            status.innerHTML = '<span class="warning">Performance stopped.</span>';
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+        }
+        
+        function disconnect() {
+            if (!client) return;
+            
+            client.disconnect();
+            client = null;
+            
+            status.innerHTML = 'Disconnected from service.';
+            connectBtn.disabled = false;
+            startBtn.disabled = true;
+            stopBtn.disabled = true;
+            disconnectBtn.disabled = true;
+            connectionInfo.style.display = 'none';
+        }
+        
+        function handleLaughterDetection(data) {
+            const detection = document.createElement('div');
+            detection.className = 'detection';
+            detection.innerHTML = `
+                <strong>🚨 Laughter Detected!</strong><br>
+                Type: ${data.laughterType}<br>
+                Confidence: ${Math.round(data.confidence * 100)}%<br>
+                Time: ${new Date().toLocaleTimeString()}<br>
+                Timestamp: ${data.timestamp}ms
+            `;
+            detections.insertBefore(detection, detections.firstChild);
+            
+            // Keep only last 10 detections
+            while (detections.children.length > 10) {
+                detections.removeChild(detections.lastChild);
+            }
+        }
+        
+        // For local development
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            serviceUrlInput.value = 'ws://localhost:8080';
+        } else {
+            // Default to AWS ALB with WSS for production/CloudFront (HTTPS pages require WSS)
+            serviceUrlInput.value = 'wss://music-box-realtime-alb-417242201.us-east-1.elb.amazonaws.com/';
+        }
+    </script>
+</body>
+</html>

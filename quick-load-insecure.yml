@@ -1,0 +1,19 @@
+# Quick Artillery WebSocket Test (ignore SSL)
+config:
+  target: "wss://music-box-realtime-alb-417242201.us-east-1.elb.amazonaws.com"
+  phases:
+    - duration: 30   # quick 30 second test
+      arrivalRate: 5
+  engines:
+    ws: {}
+  ws:
+    # Ignore SSL certificate errors
+    rejectUnauthorized: false
+scenarios:
+  - engine: ws
+    flow:
+      - think: 1
+      - send: '{"type":"ping"}'
+      - think: 2
+      - send: '{"type":"startSession","playerId":"test-user"}'
+      - think: 1

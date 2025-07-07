@@ -1,0 +1,35 @@
+{
+  "family": "music-box-realtime-service",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "taskRoleArn": "arn:aws:iam::717984198385:role/music-box-realtime-task-role",
+  "executionRoleArn": "arn:aws:iam::717984198385:role/music-box-realtime-service-TaskExecutionRole-*",
+  "containerDefinitions": [
+    {
+      "name": "realtime-service",
+      "image": "nginx:alpine",
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "NODE_ENV",
+          "value": "test"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/music-box-realtime",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}

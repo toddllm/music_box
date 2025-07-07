@@ -1,0 +1,74 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "realtime-service",
+      "image": "node:20-alpine",
+      "cpu": 0,
+      "links": [],
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 8080,
+          "protocol": "tcp"
+        },
+        {
+          "containerPort": 8081,
+          "hostPort": 8081,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "entryPoint": [],
+      "command": [
+        "sh",
+        "-c",
+        "echo \"const http = require(\\\"http\\\"); const WebSocket = require(\\\"ws\\\"); const server = http.createServer((req, res) => { res.writeHead(200); res.end(\\\"Music Box WebSocket Service Ready - Connect via WebSocket\\\"); }); const wss = new WebSocket.Server({ server }); wss.on(\\\"connection\\\", (ws) => { console.log(\\\"WebSocket connected\\\"); ws.send(JSON.stringify({ type: \\\"welcome\\\", clientId: \\\"test-\\\" + Math.random() })); ws.on(\\\"message\\\", (data) => { try { const msg = JSON.parse(data); console.log(\\\"Received:\\\", msg.type); if (msg.type === \\\"startSession\\\") { ws.send(JSON.stringify({ type: \\\"sessionStarted\\\", playerId: msg.playerId })); } } catch(e) { console.log(\\\"Non-JSON message\\\"); } }); }); server.listen(8080, () => console.log(\\\"HTTP+WebSocket server on 8080\\\")); const health = http.createServer((req, res) => { res.writeHead(200); res.end(\\\"OK\\\"); }); health.listen(8081, () => console.log(\\\"Health server on 8081\\\"));\" > server.js && npm install ws && node server.js"
+      ],
+      "environment": [
+        {
+          "name": "AWS_REGION",
+          "value": "us-east-1"
+        },
+        {
+          "name": "SESSIONS_TABLE",
+          "value": "music-box-realtime-sessions"
+        },
+        {
+          "name": "NODE_ENV",
+          "value": "production"
+        }
+      ],
+      "environmentFiles": [],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "secrets": [],
+      "dnsServers": [],
+      "dnsSearchDomains": [],
+      "extraHosts": [],
+      "dockerSecurityOptions": [],
+      "dockerLabels": {},
+      "ulimits": [],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/music-box-realtime",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        },
+        "secretOptions": []
+      },
+      "systemControls": [],
+      "credentialSpecs": []
+    }
+  ],
+  "family": "music-box-realtime-service",
+  "taskRoleArn": "arn:aws:iam::717984198385:role/music-box-realtime-task-role",
+  "executionRoleArn": "arn:aws:iam::717984198385:role/music-box-realtime-service-TaskExecutionRole-NXC5JJXKI5uK",
+  "networkMode": "awsvpc",
+  "volumes": [],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512"
+}
