@@ -158,7 +158,7 @@ jobs:
             --output json)
           
           # Update the image in the task definition
-          NEW_TASK_DEF=$(echo $TASK_DEFINITION | \
+          NEW_TASK_DEF=$(echo "$TASK_DEFINITION" | \
             jq --arg IMAGE "${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/music-box-realtime:${{ github.sha }}" \
             '.containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
           
