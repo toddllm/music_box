@@ -108,6 +108,10 @@ export class RealtimeClient extends EventEmitter {
         console.log('[RealtimeClient] Session created:', this.sessionId);
         this.emit('session.created', event);
         break;
+        
+      case 'session.updated':
+        console.log('[RealtimeClient] Session updated successfully');
+        break;
 
       case 'response.function_call_arguments.done':
         if (event.name === 'report_laughter') {
@@ -122,7 +126,7 @@ export class RealtimeClient extends EventEmitter {
         break;
 
       case 'error':
-        console.error('[RealtimeClient] API error:', event.error);
+        console.error('[RealtimeClient] API error:', JSON.stringify(event.error, null, 2));
         this.emit('error', event.error);
         break;
 

@@ -130,6 +130,18 @@ wss.on('connection', (ws, req) => {
             await realtimeClient.connect();
             realtimeConnections.set(id, realtimeClient);
             
+            // Periodically trigger response generation to check for laughter
+            const intervalId = setInterval(() => {
+              if (realtimeConnections.has(id)) {
+                realtimeClient.createResponse();
+              } else {
+                clearInterval(intervalId);
+              }
+            }, 3000); // Check every 3 seconds
+            
+            // Store interval ID for cleanup
+            realtimeClient.intervalId = intervalId;
+            
             ws.send(JSON.stringify({
               type: 'sessionStarted',
               playerId: message.playerId,
@@ -147,10 +159,11 @@ wss.on('connection', (ws, req) => {
 
         case 'audioData':
           // Log audio data reception
+          const audioData = message.data || message.audio;
           console.log(JSON.stringify({ 
             evt: 'audio_received', 
             id, 
-            dataLength: message.data ? message.data.length : 0,
+            dataLength: audioData ? audioData.length : 0,
             timestamp: Date.now() 
           }));
           
@@ -171,6 +184,9 @@ wss.on('connection', (ws, req) => {
           // Clean up Realtime API connection
           const clientToEnd = realtimeConnections.get(id);
           if (clientToEnd) {
+            if (clientToEnd.intervalId) {
+              clearInterval(clientToEnd.intervalId);
+            }
             clientToEnd.disconnect();
             realtimeConnections.delete(id);
           }
@@ -210,6 +226,9 @@ wss.on('connection', (ws, req) => {
     // Clean up Realtime API connection
     const realtimeClient = realtimeConnections.get(id);
     if (realtimeClient) {
+      if (realtimeClient.intervalId) {
+        clearInterval(realtimeClient.intervalId);
+      }
       realtimeClient.disconnect();
       realtimeConnections.delete(id);
     }
