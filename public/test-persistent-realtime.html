@@ -36,9 +36,7 @@
     <p>This connects to the ECS-hosted persistent WebSocket service for real-time laughter detection.</p>
     
     <div>
-        <input type="text" id="serviceUrl" placeholder="wss://your-alb-dns.elb.amazonaws.com" value="wss://music-box-realtime-alb-417242201.us-east-1.elb.amazonaws.com/">
-        <br>
-        <small>For local testing, use ws://localhost:8080. For production, use your ALB WebSocket URL.</small>
+        <input type="text" id="serviceUrl" placeholder="wss://ws.softwarecompanyinabox.com/" value="wss://ws.softwarecompanyinabox.com/" readonly>
     </div>
     
     <div id="connectionInfo" style="display: none;">
@@ -158,13 +156,8 @@
             }
         }
         
-        // For local development
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            serviceUrlInput.value = 'ws://localhost:8080';
-        } else {
-            // Default to AWS ALB with WSS for production/CloudFront (HTTPS pages require WSS)
-            serviceUrlInput.value = 'wss://music-box-realtime-alb-417242201.us-east-1.elb.amazonaws.com/';
-        }
+        // Production WebSocket endpoint
+        serviceUrlInput.value = 'wss://ws.softwarecompanyinabox.com/';
     </script>
 </body>
 </html>

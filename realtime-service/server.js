@@ -75,16 +75,39 @@ wss.on('connection', (ws, req) => {
           break;
 
         case 'audioData':
-          // Mock laughter detection for testing
-          if (Math.random() < 0.03) { // 3% chance to simulate laughter
+          // Log audio data reception
+          console.log(JSON.stringify({ 
+            evt: 'audio_received', 
+            id, 
+            dataLength: message.data ? message.data.length : 0,
+            timestamp: Date.now() 
+          }));
+          
+          // Send acknowledgment
+          ws.send(JSON.stringify({
+            type: 'audioReceived',
+            timestamp: Date.now()
+          }));
+          
+          // Mock laughter detection for testing (increased to 30% for easier testing)
+          const laughterChance = Math.random();
+          if (laughterChance < 0.3) { // 30% chance to simulate laughter
+            const laughterData = {
+              confidence: 0.6 + Math.random() * 0.4,
+              laughterType: ['chuckling', 'giggling', 'loud_laughter', 'snickering'][Math.floor(Math.random() * 4)],
+              intensity: ['subtle', 'moderate', 'intense'][Math.floor(Math.random() * 3)],
+              timestamp: Date.now()
+            };
+            
+            console.log(JSON.stringify({ 
+              evt: 'laughter_detected', 
+              id, 
+              data: laughterData 
+            }));
+            
             ws.send(JSON.stringify({
               type: 'laughterDetected',
-              data: {
-                confidence: 0.6 + Math.random() * 0.4,
-                laughterType: ['chuckling', 'giggling', 'loud_laughter', 'snickering'][Math.floor(Math.random() * 4)],
-                intensity: ['subtle', 'moderate', 'intense'][Math.floor(Math.random() * 3)],
-                timestamp: Date.now()
-              }
+              data: laughterData
             }));
           }
           break;

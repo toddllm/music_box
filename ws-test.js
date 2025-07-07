@@ -1,8 +1,6 @@
 const WebSocket = require('ws');
 
-const ws = new WebSocket('wss://music-box-realtime-alb-417242201.us-east-1.elb.amazonaws.com/', {
-  rejectUnauthorized: false
-});
+const ws = new WebSocket('wss://ws.softwarecompanyinabox.com/');
 
 ws.on('open', () => {
   console.log('✓ Connected to WebSocket');

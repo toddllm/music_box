@@ -79,6 +79,15 @@ class MusicBoxRealtimeClient {
         this.stopAudioStreaming();
         break;
         
+      case 'audioReceived':
+        // Server acknowledgment of audio data
+        if (!this.audioAckCount) this.audioAckCount = 0;
+        this.audioAckCount++;
+        if (this.audioAckCount % 10 === 0) {
+          console.log(`[RealtimeClient] Server acknowledged ${this.audioAckCount} audio chunks`);
+        }
+        break;
+        
       case 'laughterDetected':
         console.log('[RealtimeClient] 🎉 Laughter detected!', message.data);
         if (this.onLaughterDetected) {
@@ -153,6 +162,13 @@ class MusicBoxRealtimeClient {
         
         // Convert to base64 and send
         const base64Audio = btoa(String.fromCharCode.apply(null, new Uint8Array(pcm16.buffer)));
+        
+        // Log every 10th chunk to avoid spam
+        if (!this.audioChunkCount) this.audioChunkCount = 0;
+        this.audioChunkCount++;
+        if (this.audioChunkCount % 10 === 0) {
+          console.log(`[RealtimeClient] Sending audio chunk #${this.audioChunkCount}, size: ${base64Audio.length} bytes`);
+        }
         
         this.sendMessage({
           type: 'audioData',
