@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Karaoke Storage</title>
+</head>
+<body>
+    <h1>Test Karaoke Storage</h1>
+    <button onclick="testStorage()">Test LocalStorage</button>
+    <div id="output"></div>
+
+    <script>
+        function testStorage() {
+            // Test saving a mock song
+            const mockSong = {
+                id: Date.now(),
+                title: "Test Song",
+                theme: "Testing the storage functionality",
+                style: "pop",
+                duration: 45,
+                createdAt: new Date().toISOString(),
+                songData: {
+                    musicUrl: "https://example.com/test.mp3",
+                    lyrics: {
+                        title: "Test Song",
+                        verses: []
+                    }
+                },
+                lyricsData: {
+                    title: "Test Song",
+                    verses: []
+                }
+            };
+
+            // Get existing songs
+            const existing = localStorage.getItem('karaoke_saved_songs');
+            const songs = existing ? JSON.parse(existing) : [];
+            
+            // Add new song
+            songs.unshift(mockSong);
+            
+            // Save back
+            localStorage.setItem('karaoke_saved_songs', JSON.stringify(songs));
+            
+            // Display
+            document.getElementById('output').innerHTML = `
+                <h2>Saved Songs:</h2>
+                <pre>${JSON.stringify(songs, null, 2)}</pre>
+            `;
+        }
+    </script>
+</body>
+</html>

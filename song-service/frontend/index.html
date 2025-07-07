@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Box - Song Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-music"></i>
+                    <h1>Music Box</h1>
+                </div>
+                <nav class="nav-links">
+                    <a href="karaoke.html" class="nav-link">
+                        <i class="fas fa-microphone"></i>
+                        Karaoke Game
+                    </a>
+                </nav>
+                <div class="user-profile" id="userProfile">
+                    <button class="profile-btn" id="profileBtn">
+                        <i class="fas fa-user"></i>
+                        <span id="userName">Guest</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Song Creation Panel -->
+            <section class="creation-panel">
+                <h2><i class="fas fa-magic"></i> Create Your Song</h2>
+                
+                <form id="songForm" class="song-form">
+                    <div class="form-group">
+                        <label for="songPrompt">Song Description</label>
+                        <textarea 
+                            id="songPrompt" 
+                            placeholder="Describe the song you want to create... (e.g., 'A cheerful birthday tune for a child')"
+                            maxlength="600"
+                            required
+                        ></textarea>
+                        <div class="char-count">
+                            <span id="charCount">0</span>/600
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="songStyle">Musical Style</label>
+                            <select id="songStyle" required>
+                                <option value="">Select a style...</option>
+                                <option value="pop">Pop - Upbeat and catchy</option>
+                                <option value="rock">Rock - Energetic and powerful</option>
+                                <option value="jazz">Jazz - Smooth and sophisticated</option>
+                                <option value="classical">Classical - Orchestral and elegant</option>
+                                <option value="electronic">Electronic - Digital and modern</option>
+                                <option value="folk">Folk - Acoustic and traditional</option>
+                                <option value="country">Country - Rural and storytelling</option>
+                                <option value="blues">Blues - Soulful and emotional</option>
+                                <option value="reggae">Reggae - Relaxed and rhythmic</option>
+                                <option value="hip-hop">Hip-Hop - Rhythmic and urban</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="songDuration">Duration</label>
+                            <select id="songDuration">
+                                <option value="15">15 seconds</option>
+                                <option value="20">20 seconds</option>
+                                <option value="30" selected>30 seconds</option>
+                                <option value="45">45 seconds</option>
+                                <option value="60">60 seconds</option>
+                                <option value="90">90 seconds</option>
+                                <option value="120">2 minutes</option>
+                                <option value="180">3 minutes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="songTitle">Song Title (Optional)</label>
+                        <input 
+                            type="text" 
+                            id="songTitle" 
+                            placeholder="Give your song a name..."
+                            maxlength="100"
+                        >
+                    </div>
+
+                    <button type="submit" class="generate-btn" id="generateBtn">
+                        <i class="fas fa-sparkles"></i>
+                        Generate Song
+                    </button>
+                </form>
+
+                <!-- Generation Status -->
+                <div class="generation-status" id="generationStatus" style="display: none;">
+                    <div class="status-content">
+                        <div class="spinner"></div>
+                        <p id="statusText">Generating your song...</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Audio Player -->
+            <section class="audio-player-section" id="audioPlayerSection" style="display: none;">
+                <h2><i class="fas fa-play-circle"></i> Your Generated Song</h2>
+                
+                <div class="audio-player">
+                    <audio id="audioPlayer" controls preload="metadata">
+                        Your browser does not support the audio element.
+                    </audio>
+                    
+                    <div class="player-controls">
+                        <button class="control-btn" id="playPauseBtn">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <div class="progress-container">
+                            <input type="range" id="progressBar" min="0" max="100" value="0">
+                            <div class="time-display">
+                                <span id="currentTime">0:00</span>
+                                <span id="duration">0:00</span>
+                            </div>
+                        </div>
+                        <div class="volume-container">
+                            <i class="fas fa-volume-up"></i>
+                            <input type="range" id="volumeSlider" min="0" max="100" value="50">
+                        </div>
+                    </div>
+
+                    <div class="song-actions">
+                        <button class="action-btn save-btn" id="saveBtn">
+                            <i class="fas fa-heart"></i>
+                            Save to Library
+                        </button>
+                        <button class="action-btn download-btn" id="downloadBtn">
+                            <i class="fas fa-download"></i>
+                            Download
+                        </button>
+                        <button class="action-btn share-btn" id="shareBtn">
+                            <i class="fas fa-share"></i>
+                            Share
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Song Library -->
+            <section class="song-library">
+                <div class="library-header">
+                    <h2><i class="fas fa-music"></i> Your Song Library</h2>
+                    <div class="library-controls">
+                        <input type="search" id="librarySearch" placeholder="Search your songs...">
+                        <select id="librarySort">
+                            <option value="recent">Most Recent</option>
+                            <option value="title">Title A-Z</option>
+                            <option value="style">By Style</option>
+                            <option value="duration">By Duration</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="songs-grid" id="songsGrid">
+                    <!-- Songs will be populated here -->
+                </div>
+
+                <div class="empty-library" id="emptyLibrary">
+                    <i class="fas fa-music"></i>
+                    <h3>No songs yet</h3>
+                    <p>Create your first song to get started!</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Profile Modal -->
+        <div class="modal" id="profileModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>User Profile</h3>
+                    <button class="close-btn" id="closeProfileModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="profileForm">
+                        <div class="form-group">
+                            <label for="profileName">Display Name</label>
+                            <input type="text" id="profileName" placeholder="Enter your name..." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="profileEmail">Email (Optional)</label>
+                            <input type="email" id="profileEmail" placeholder="your@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="profileAvatar">Avatar</label>
+                            <div class="avatar-selector">
+                                <div class="avatar-option selected" data-avatar="🎵">🎵</div>
+                                <div class="avatar-option" data-avatar="🎼">🎼</div>
+                                <div class="avatar-option" data-avatar="🎸">🎸</div>
+                                <div class="avatar-option" data-avatar="🎤">🎤</div>
+                                <div class="avatar-option" data-avatar="🎺">🎺</div>
+                                <div class="avatar-option" data-avatar="🥁">🥁</div>
+                            </div>
+                        </div>
+                        <button type="submit" class="save-profile-btn">Save Profile</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div class="toast-container" id="toastContainer"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

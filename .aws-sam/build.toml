@@ -5,7 +5,7 @@ codeuri = "/Users/tdeshane/music_box"
 runtime = "nodejs20.x"
 architecture = "x86_64"
 handler = "lambda.handler"
-manifest_hash = ""
+manifest_hash = "b4974eaa7565b105682c8c3104fcf178"
 packagetype = "Zip"
 functions = ["MusicBoxFunction", "WebSocketFunction"]
 

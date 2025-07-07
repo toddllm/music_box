@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-07-07T21:28:57.464Z",
+  "success": true,
+  "songId": "b97ac105-6795-4ead-b23a-0aa475685ace",
+  "songTitle": "Epic ballad Song",
+  "musicUrl": "https://v3.fal.media/files/lion/M_OqscapYKgyto6i2jv17_generated.wav",
+  "apiUrl": "https://pd08901pf7.execute-api.us-east-1.amazonaws.com/prod",
+  "cloudfrontUrl": "https://d2ugsg84qhlo4p.cloudfront.net"
+}

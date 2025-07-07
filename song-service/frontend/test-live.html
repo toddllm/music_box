@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live Test - No Cache</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+</head>
+<body>
+    <h1>Live API Test - No Caching</h1>
+    <button onclick="testNow()">Test NOW</button>
+    <pre id="output"></pre>
+
+    <script>
+    async function testNow() {
+        const output = document.getElementById('output');
+        const timestamp = Date.now();
+        
+        output.textContent = `Testing at ${new Date().toISOString()}\n\n`;
+        
+        try {
+            // Force fresh fetch with timestamp
+            const response = await fetch(`https://pd08901pf7.execute-api.us-east-1.amazonaws.com/prod/karaoke/songs?nocache=${timestamp}`, {
+                cache: 'no-store',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
+            });
+            
+            const data = await response.json();
+            output.textContent += `Songs found: ${data.songs?.length || 0}\n\n`;
+            output.textContent += JSON.stringify(data, null, 2);
+            
+            // Also test if the karaoke page can be loaded fresh
+            const karaokeResponse = await fetch(`/karaoke.html?v=${timestamp}`, {
+                cache: 'no-store'
+            });
+            output.textContent += `\n\nKaraoke page status: ${karaokeResponse.status}`;
+            
+        } catch (error) {
+            output.textContent += `Error: ${error.message}`;
+        }
+    }
+    
+    // Test immediately
+    testNow();
+    </script>
+</body>
+</html>

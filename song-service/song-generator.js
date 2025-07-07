@@ -1,5 +1,5 @@
 // Song Generation Service using Fal.ai Minimax Music API
-import fal from '@fal-ai/client';
+import * as fal from '@fal-ai/client';
 import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
 
 export class SongGenerator {

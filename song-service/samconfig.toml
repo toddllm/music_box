@@ -1,0 +1,21 @@
+version = 0.1
+
+[default.global.parameters]
+stack_name = "music-box-song-service"
+
+[default.build.parameters]
+cached = true
+parallel = true
+
+[default.validate.parameters]
+lint = true
+
+[default.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+s3_prefix = "music-box-song-service"
+region = "us-east-1"
+stack_name = "music-box-song-service"
+parameter_overrides = "Stage=prod"
+image_repositories = []

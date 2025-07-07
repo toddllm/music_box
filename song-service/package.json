@@ -2,7 +2,6 @@
   "name": "music-box-song-service",
   "version": "1.0.0",
   "description": "Song generation service for Music Box using Fal.ai Minimax Music API",
-  "type": "module",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -10,12 +9,16 @@
     "test": "echo \"No tests yet\" && exit 0"
   },
   "dependencies": {
-    "@fal-ai/client": "^1.0.0",
+    "@aws-sdk/client-dynamodb": "^3.538.0",
     "@aws-sdk/client-secrets-manager": "^3.538.0",
-    "express": "^4.18.0",
+    "@aws-sdk/lib-dynamodb": "^3.538.0",
+    "@fal-ai/client": "^1.0.0",
+    "axios": "^1.6.0",
     "cors": "^2.8.5",
+    "express": "^4.18.0",
     "multer": "^2.0.0",
-    "axios": "^1.6.0"
+    "node-fetch": "^3.3.2",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
@@ -23,7 +26,13 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "keywords": ["music-generation", "fal-ai", "minimax", "song", "api"],
+  "keywords": [
+    "music-generation",
+    "fal-ai",
+    "minimax",
+    "song",
+    "api"
+  ],
   "author": "Music Box Team",
   "license": "MIT"
 }

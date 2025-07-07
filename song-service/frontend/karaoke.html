@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Box Karaoke - Sing Along Game</title>
+    <link rel="stylesheet" href="karaoke-styles.css?v=2">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="karaoke-container">
+        <!-- Game Header -->
+        <header class="game-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-microphone"></i>
+                    <h1>Music Box Karaoke</h1>
+                </div>
+                <div class="game-controls">
+                    <button class="btn-secondary" id="backToMenu">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Music Box
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Game Phases -->
+        <!-- Phase 1: Song Creation -->
+        <section id="songCreationPhase" class="game-phase active">
+            <div class="phase-content">
+                <h2><i class="fas fa-music"></i> Create Your Karaoke Song</h2>
+                
+                <form id="karaokeForm" class="karaoke-form">
+                    <div class="form-group">
+                        <label for="songTheme">What's your song about?</label>
+                        <textarea 
+                            id="songTheme" 
+                            placeholder="A birthday celebration, a love story, an adventure..."
+                            maxlength="300"
+                            required
+                        ></textarea>
+                        <div class="char-count">
+                            <span id="themeCharCount">0</span>/300
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="musicStyle">Music Style</label>
+                            <select id="musicStyle" required>
+                                <option value="">Select a style...</option>
+                                <option value="pop">Pop - Catchy and upbeat</option>
+                                <option value="rock">Rock - Energetic</option>
+                                <option value="ballad">Ballad - Slow and emotional</option>
+                                <option value="disco">Disco - Dance party</option>
+                                <option value="country">Country - Storytelling</option>
+                                <option value="r&b">R&B - Smooth and soulful</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="songLength">Song Length</label>
+                            <select id="songLength">
+                                <option value="30">30 seconds</option>
+                                <option value="45" selected>45 seconds</option>
+                                <option value="60">1 minute</option>
+                                <option value="90">1.5 minutes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="playerName">Your Singer Name</label>
+                        <input 
+                            type="text" 
+                            id="playerName" 
+                            placeholder="Enter your stage name..."
+                            maxlength="30"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="btn-primary btn-large" id="createKaraokeBtn">
+                        <i class="fas fa-magic"></i>
+                        Create Karaoke Song
+                    </button>
+                </form>
+
+                <!-- Saved Songs Section -->
+                <div class="saved-songs-section" id="savedSongsSection">
+                    <h3><i class="fas fa-history"></i> Previously Generated Songs</h3>
+                    <div class="saved-songs-grid" id="savedSongsGrid">
+                        <!-- Saved songs will be populated here -->
+                    </div>
+                    <p class="no-saved-songs" id="noSavedSongs" style="display: none;">
+                        No saved songs yet. Create your first karaoke song!
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phase 2: Loading/Generation -->
+        <section id="loadingPhase" class="game-phase">
+            <div class="phase-content">
+                <div class="loading-animation">
+                    <div class="music-notes">
+                        <i class="fas fa-music note-1"></i>
+                        <i class="fas fa-music note-2"></i>
+                        <i class="fas fa-music note-3"></i>
+                    </div>
+                    <h2>Creating Your Karaoke Experience...</h2>
+                    <div class="loading-steps">
+                        <div class="step" id="step1">
+                            <div class="step-icon"><i class="fas fa-guitar"></i></div>
+                            <span>Composing music...</span>
+                        </div>
+                        <div class="step" id="step2">
+                            <div class="step-icon"><i class="fas fa-pen"></i></div>
+                            <span>Writing lyrics...</span>
+                        </div>
+                        <div class="step" id="step3">
+                            <div class="step-icon"><i class="fas fa-microphone-alt"></i></div>
+                            <span>Preparing AI singer...</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="creationProgress"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phase 3: Karaoke Performance -->
+        <section id="performancePhase" class="game-phase">
+            <div class="performance-container">
+                <!-- Song Info Bar -->
+                <div class="song-info-bar">
+                    <div class="song-title" id="songTitle">Your Song Title</div>
+                    <div class="song-stats">
+                        <span class="current-singer">
+                            <i class="fas fa-user"></i>
+                            <span id="currentSinger">You</span>
+                        </span>
+                        <span class="song-timer">
+                            <span id="currentTime">0:00</span> / <span id="totalTime">0:00</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Lyrics Display -->
+                <div class="lyrics-display" id="lyricsDisplay">
+                    <div class="lyrics-viewport">
+                        <div class="current-lyrics" id="currentLyrics">
+                            <p class="lyric-line active">Get ready to sing!</p>
+                        </div>
+                        <div class="upcoming-lyrics" id="upcomingLyrics">
+                            <p class="lyric-line">Loading lyrics...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visual Feedback -->
+                <div class="performance-visuals">
+                    <div class="singer-indicator" id="singerIndicator">
+                        <div class="player-side" id="playerSide">
+                            <i class="fas fa-user"></i>
+                            <span>You</span>
+                        </div>
+                        <div class="ai-side" id="aiSide">
+                            <i class="fas fa-robot"></i>
+                            <span>AI Singer</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game Controls -->
+                <div class="game-controls-bar">
+                    <audio id="musicPlayer" preload="auto"></audio>
+                    <audio id="aiVoicePlayer" preload="auto"></audio>
+                    
+                    <button class="btn-control" id="playPauseBtn">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    
+                    <div class="volume-controls">
+                        <label>
+                            <i class="fas fa-music"></i>
+                            <input type="range" id="musicVolume" min="0" max="100" value="70">
+                        </label>
+                        <label>
+                            <i class="fas fa-microphone"></i>
+                            <input type="range" id="voiceVolume" min="0" max="100" value="100">
+                        </label>
+                    </div>
+                    
+                    <button class="btn-control" id="restartBtn">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phase 4: Results -->
+        <section id="resultsPhase" class="game-phase">
+            <div class="phase-content">
+                <div class="results-container">
+                    <h2><i class="fas fa-trophy"></i> Performance Complete!</h2>
+                    
+                    <div class="performance-summary">
+                        <div class="stat-card">
+                            <i class="fas fa-microphone"></i>
+                            <h3>Your Performance</h3>
+                            <p class="stat-value" id="performanceRating">Amazing!</p>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <i class="fas fa-music"></i>
+                            <h3>Song Created</h3>
+                            <p class="stat-value" id="songCreated">Your Song Title</p>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn-primary" id="replaySameBtn">
+                            <i class="fas fa-play"></i>
+                            Play This Song Again
+                        </button>
+                        <button class="btn-secondary" id="shareBtn">
+                            <i class="fas fa-share"></i>
+                            Share
+                        </button>
+                        <button class="btn-primary" id="playAgainBtn">
+                            <i class="fas fa-redo"></i>
+                            Create Another Song
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="karaoke-app.js?v=2"></script>
+</body>
+</html>

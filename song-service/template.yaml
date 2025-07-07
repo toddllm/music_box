@@ -1,0 +1,226 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'Music Box Song Generation Service - Serverless API for generating songs using Fal.ai'
+
+Globals:
+  Function:
+    Timeout: 300  # 5 minutes for song generation
+    MemorySize: 1024
+    Runtime: nodejs20.x
+    Environment:
+      Variables:
+        NODE_ENV: production
+
+Parameters:
+  Stage:
+    Type: String
+    Default: prod
+    Description: Deployment stage
+
+Resources:
+  # DynamoDB Table for Karaoke Songs
+  KaraokeSongsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'music-box-karaoke-songs-${Stage}'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: createdAt
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: createdAt-index
+          KeySchema:
+            - AttributeName: createdAt
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+      Tags:
+        - Key: Application
+          Value: MusicBox
+        - Key: Environment
+          Value: !Ref Stage
+
+  # Song Generation Lambda Function
+  SongGenerationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'music-box-song-generation-${Stage}'
+      CodeUri: ./
+      Handler: lambda.handler
+      Description: 'Generate songs using Fal.ai cassetteai/music-generator'
+      Timeout: 300  # 5 minutes
+      MemorySize: 1024
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:music-box/fal-ai-*'
+      Environment:
+        Variables:
+          NODE_ENV: production
+      Events:
+        GenerateSong:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /generate
+            Method: POST
+        GetStyles:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /styles
+            Method: GET
+        HealthCheck:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /health
+            Method: GET
+        CorsGenerate:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /generate
+            Method: OPTIONS
+        CorsStyles:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /styles
+            Method: OPTIONS
+        CorsHealth:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /health
+            Method: OPTIONS
+
+  # Karaoke Lambda Function
+  KaraokeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'music-box-karaoke-${Stage}'
+      CodeUri: ./
+      Handler: karaoke-lambda.handler
+      Description: 'Karaoke game with lyrics and AI voice synthesis'
+      Timeout: 300  # 5 minutes
+      MemorySize: 1024
+      Environment:
+        Variables:
+          NODE_ENV: production
+          DYNAMODB_TABLE_NAME: !Ref KaraokeSongsTable
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: 
+                - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:music-box/fal-ai-*'
+                - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:music-box/elevenlabs-*'
+            - Effect: Allow
+              Action:
+                - dynamodb:PutItem
+                - dynamodb:GetItem
+                - dynamodb:Query
+                - dynamodb:Scan
+                - dynamodb:DeleteItem
+              Resource:
+                - !GetAtt KaraokeSongsTable.Arn
+                - !Sub '${KaraokeSongsTable.Arn}/index/*'
+      Events:
+        GenerateKaraoke:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /karaoke/generate
+            Method: POST
+        GenerateLyrics:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /karaoke/lyrics
+            Method: POST
+        SynthesizeVoice:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /karaoke/voice
+            Method: POST
+        CorsKaraokeGenerate:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /karaoke/generate
+            Method: OPTIONS
+        CorsKaraokeLyrics:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /karaoke/lyrics
+            Method: OPTIONS
+        CorsKaraokeVoice:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /karaoke/voice
+            Method: OPTIONS
+        GetKaraokeSongs:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /karaoke/songs
+            Method: GET
+        GetKaraokeSong:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /karaoke/songs/{id}
+            Method: GET
+        CorsKaraokeSongs:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /karaoke/songs
+            Method: OPTIONS
+        CorsKaraokeSong:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /karaoke/songs/{id}
+            Method: OPTIONS
+
+  # API Gateway (simplified without DefinitionBody)
+  SongGenerationApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub 'music-box-song-api-${Stage}'
+      StageName: !Ref Stage
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization'"
+        AllowOrigin: "'*'"
+
+Outputs:
+  SongGenerationApi:
+    Description: 'API Gateway endpoint URL for song generation'
+    Value: !Sub 'https://${SongGenerationApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/'
+    Export:
+      Name: !Sub '${AWS::StackName}-SongGenerationApiUrl'
+  
+  SongGenerationFunction:
+    Description: 'Song Generation Lambda Function ARN'
+    Value: !GetAtt SongGenerationFunction.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-SongGenerationFunctionArn'
