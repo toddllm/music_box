@@ -328,11 +328,15 @@ exports.handler = async (event) => {
       
       const result = await generateKaraokePackage(prompt, style, duration);
       
-      // Save the song to DynamoDB if successful (async, don't wait)
+      // Save the song to DynamoDB if successful
       if (result.success && tableName) {
-        saveSongToDb(result).catch(error => {
+        try {
+          // We need to wait for the ID to be generated
+          await saveSongToDb(result);
+        } catch (error) {
           console.error('Failed to save song to DB:', error);
-        });
+          // Don't fail the request if save fails
+        }
       }
       
       return {
