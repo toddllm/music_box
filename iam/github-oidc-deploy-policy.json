@@ -24,7 +24,10 @@
         "cloudformation:DescribeStackEvents",
         "cloudformation:DescribeStackResources",
         "cloudformation:GetTemplate",
-        "cloudformation:ValidateTemplate"
+        "cloudformation:ValidateTemplate",
+        "cloudformation:GetTemplateSummary",
+        "cloudformation:ListStackResources",
+        "cloudformation:GetStackPolicy"
       ],
       "Resource": [
         "arn:aws:cloudformation:us-east-1:717984198385:stack/noagenda-mixer-production/*",

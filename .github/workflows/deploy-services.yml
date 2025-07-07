@@ -61,7 +61,7 @@ jobs:
         run: echo "${{ github.sha }}" > mixer-image-tag.txt
       
       - name: 📤 Upload image tag
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: mixer-image-tag
           path: mixer-image-tag.txt
@@ -118,7 +118,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: 📥 Download image tag
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: mixer-image-tag
 
