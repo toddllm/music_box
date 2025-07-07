@@ -243,3 +243,193 @@ input[type="text"]:focus {
     margin: 2rem 0;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+/* New game-specific styles */
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: block;
+    width: 100%;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+.btn-stop {
+    background: #dc3545 !important;
+    animation: pulse-red 1.5s infinite;
+}
+
+@keyframes pulse-red {
+    0% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 20px rgba(220, 53, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+    }
+}
+
+.performance-timer {
+    font-size: 1.5rem;
+    color: #667eea;
+    margin: 1rem 0;
+    font-weight: bold;
+}
+
+.status-ready {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.status-recording {
+    color: #dc3545;
+    font-weight: bold;
+    animation: blink 1s infinite;
+}
+
+.status-error {
+    color: #dc3545;
+    background: #f8d7da;
+    padding: 1rem;
+    border-radius: 5px;
+    border: 1px solid #f5c6cb;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.7; }
+}
+
+.laughter-count {
+    margin-top: 0.5rem;
+    font-size: 1.1rem;
+    color: #ffc107;
+}
+
+.performance-results {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 2rem;
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.result-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.stat {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #495057;
+}
+
+.result-success {
+    background: #d4edda;
+    color: #155724;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #c3e6cb;
+    margin: 1rem 0;
+    font-size: 1.2rem;
+}
+
+.result-warning {
+    background: #fff3cd;
+    color: #856404;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ffeaa7;
+    margin: 1rem 0;
+    font-size: 1.2rem;
+}
+
+.laughter-details {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    text-align: left;
+}
+
+.laughter-details h4 {
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.laughter-details ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.laughter-details li {
+    background: #f8f9fa;
+    padding: 0.5rem;
+    margin: 0.3rem 0;
+    border-radius: 4px;
+    border-left: 4px solid #ffc107;
+}
+
+.laughter-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #fff3cd;
+    color: #856404;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    border: 1px solid #ffeaa7;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.notification-content {
+    text-align: center;
+}
+
+.detection-details {
+    font-size: 0.9rem;
+    margin-top: 0.3rem;
+    color: #6c757d;
+}
