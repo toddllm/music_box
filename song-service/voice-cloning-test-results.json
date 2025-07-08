@@ -1,0 +1,21 @@
+{
+  "testDate": "2025-07-08T17:35:36.827Z",
+  "referenceVoice": {
+    "name": "Zeldina",
+    "url": "https://v3.fal.media/files/monkey/C2_gjTrYLMk1hz9KF5vN2_output.wav",
+    "song": "Sir Wiggleton"
+  },
+  "testSong": "Shoelace Romance",
+  "results": {
+    "withReference": {
+      "url": "https://v3.fal.media/files/panda/3Zja05ZX7P8USBUszeBgb_output.wav",
+      "duration": 101315,
+      "requestId": "b5df8cee-57b9-431a-a91a-9712d80bd7c2"
+    },
+    "withoutReference": {
+      "url": "https://v3.fal.media/files/rabbit/QIA1pYTKP2zyr4Ldl_BRE_output.wav",
+      "duration": 5686,
+      "requestId": "878e7c76-1384-4e78-8b97-e16431011a6b"
+    }
+  }
+}
