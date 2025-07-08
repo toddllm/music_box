@@ -67,17 +67,69 @@ exports.handler = async (event) => {
     // Build per-model input
     const input = {};
     
-    // Common inputs
-    if (lyrics) input.lyrics = lyrics;
-    
     // Model-specific inputs based on API documentation
     if (model === 'fal-ai/yue') {
-      // YuE uses 'genres' parameter
-      if (genres) input.genres = genres;
+      // YuE REQUIRES both lyrics AND genres
+      if (!lyrics || !genres) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({
+            success: false,
+            error: 'YuE requires both lyrics (with [verse] and [chorus]) and genres'
+          })
+        };
+      }
+      
+      // Validate lyrics have required sections
+      if (!lyrics.includes('[verse]') || !lyrics.includes('[chorus]')) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({
+            success: false,
+            error: 'YuE requires lyrics with at least one [verse] and one [chorus] section'
+          })
+        };
+      }
+      
+      input.lyrics = lyrics;
+      input.genres = genres; // Space-separated, e.g. "upbeat disco funky"
+      
     } else if (model === 'fal-ai/diffrhythm') {
-      // DiffRhythm uses 'style_prompt' instead of 'genres'
-      if (genres) input.style_prompt = genres;
-      if (refUrl) input.reference_audio_url = refUrl;
+      // DiffRhythm requires timestamped lyrics for vocals
+      if (!lyrics) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({
+            success: false,
+            error: 'DiffRhythm requires timestamped lyrics for vocal generation'
+          })
+        };
+      }
+      
+      // Check if lyrics have timestamps
+      const hasTimestamps = /^\[\d{2}:\d{2}(?:\.\d{2})?\]/.test(lyrics.trim());
+      if (!hasTimestamps) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({
+            success: false,
+            error: 'DiffRhythm requires timestamped lyrics like [00:00.00] for vocals. Without timestamps, it generates instrumentals only.'
+          })
+        };
+      }
+      
+      input.lyrics = lyrics;
+      input.style_prompt = genres || 'vocal-forward pop';
+      
+      // Use Zeldina voice reference by default for consistent female voice
+      const ZELDINA_VOICE_URL = 'https://v3.fal.media/files/monkey/C2_gjTrYLMk1hz9KF5vN2_output.wav';
+      input.reference_audio_url = refUrl || ZELDINA_VOICE_URL;
+      
+      console.log('Using voice reference:', refUrl ? 'Custom URL' : 'Zeldina (default)');
     }
     
     if (model === 'fal-ai/ace-step/audio-inpaint') {
