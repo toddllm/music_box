@@ -1,0 +1,34 @@
+{
+  "voiceName": "Zeldina",
+  "description": "Female voice from Sir Wiggleton song - to be used as reference for all Music Box songs",
+  "sourceFile": "reference-voice-zeldina.wav",
+  "sourceUrl": "https://v3.fal.media/files/monkey/C2_gjTrYLMk1hz9KF5vN2_output.wav",
+  "characteristics": {
+    "gender": "female",
+    "style": "epic, theatrical, expressive",
+    "tone": "heroic, dramatic, storytelling",
+    "age": "young adult"
+  },
+  "originalSong": {
+    "title": "The Epic Ballad of Sir Wiggleton the Magnificent Spoon",
+    "model": "fal-ai/diffrhythm",
+    "genres": "epic orchestral heroic male vocal anthem",
+    "note": "Despite 'male vocal' in prompt, generated a female voice we prefer"
+  },
+  "technicalDetails": {
+    "format": "WAV",
+    "size": "16MB",
+    "duration": "~50 seconds",
+    "sampleRate": "44100Hz"
+  },
+  "usage": {
+    "diffrhythm": {
+      "parameter": "reference_audio_url",
+      "description": "DiffRhythm can clone melody/voice characteristics from reference"
+    },
+    "ace-step": {
+      "parameter": "tags",
+      "description": "Can specify 'female vocal' similar to reference"
+    }
+  }
+}
