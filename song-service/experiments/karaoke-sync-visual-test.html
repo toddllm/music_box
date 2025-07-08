@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karaoke Sync Visual Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #fff;
+        }
+        
+        h1 {
+            color: #9d4edd;
+            text-align: center;
+        }
+        
+        .controls {
+            background: #0f3460;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            background: #9d4edd;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #ff006e;
+        }
+        
+        .timeline {
+            background: #16213e;
+            height: 100px;
+            position: relative;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .verse-block {
+            position: absolute;
+            height: 80px;
+            top: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .verse-block.player {
+            background: rgba(59, 130, 246, 0.8);
+            border: 2px solid #3b82f6;
+        }
+        
+        .verse-block.ai {
+            background: rgba(157, 78, 221, 0.8);
+            border: 2px solid #9d4edd;
+        }
+        
+        .verse-block:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        
+        .playhead {
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background: #ff006e;
+            top: 0;
+            left: 0;
+            transition: left 0.1s linear;
+        }
+        
+        .lyrics-display {
+            background: #0f3460;
+            padding: 30px;
+            border-radius: 10px;
+            min-height: 200px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .lyrics-line {
+            font-size: 1.5em;
+            line-height: 2em;
+            opacity: 0.5;
+            transition: all 0.3s ease;
+        }
+        
+        .lyrics-line.active {
+            opacity: 1;
+            color: #ff006e;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        
+        .singer-indicator {
+            background: #9d4edd;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        
+        .singer-indicator.player {
+            background: #3b82f6;
+        }
+        
+        .stats {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        .stat-label {
+            color: #a1a1aa;
+            font-size: 0.9em;
+        }
+        
+        #debug {
+            background: #000;
+            color: #0f0;
+            font-family: monospace;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-size: 0.8em;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .issue-indicator {
+            background: #ef4444;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 5px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎤 Karaoke Sync Visual Test</h1>
+    
+    <div class="controls">
+        <button onclick="loadSong('captain-tissue-vocals')">Captain Tissue</button>
+        <button onclick="loadSong('spoon-ballad-vocals')">Spoon Ballad</button>
+        <button onclick="loadSong('shoelace-romance-vocals')">Shoelace Romance</button>
+        <button onclick="loadSong('sandwich-mystery-vocals')">Sandwich Mystery</button>
+        <button onclick="loadSong('pumpkin-tummy-vocals')">Pumpkin Tummy</button>
+        <button onclick="togglePlay()" id="playBtn">▶️ Play</button>
+        <button onclick="restart()">🔄 Restart</button>
+        <button onclick="toggleDebug()">🐛 Debug</button>
+    </div>
+    
+    <div class="stats">
+        <div class="stat-item">
+            <div class="stat-value" id="currentTime">0.0s</div>
+            <div class="stat-label">Current Time</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="currentVerse">-</div>
+            <div class="stat-label">Current Verse</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="nextSwitch">-</div>
+            <div class="stat-label">Next Switch In</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="coverage">0%</div>
+            <div class="stat-label">Lyric Coverage</div>
+        </div>
+    </div>
+    
+    <div class="timeline" id="timeline">
+        <div class="playhead" id="playhead"></div>
+    </div>
+    
+    <div class="lyrics-display" id="lyricsDisplay">
+        <div class="singer-indicator" id="singerIndicator">Select a Song</div>
+        <div id="lyricsContent">Choose a song to begin testing</div>
+    </div>
+    
+    <div id="issues"></div>
+    
+    <div id="debug" style="display: none;"></div>
+    
+    <audio id="audioPlayer" preload="auto"></audio>
+    
+    <script>
+        let currentSong = null;
+        let currentVerseIndex = -1;
+        let isPlaying = false;
+        let debugMode = false;
+        let animationFrame = null;
+        
+        const audioPlayer = document.getElementById('audioPlayer');
+        
+        async function loadSong(songId) {
+            try {
+                const response = await fetch(`../karaoke-songs/${songId}.json`);
+                currentSong = await response.json();
+                
+                log(`Loaded: ${currentSong.title}`);
+                log(`Duration: ${currentSong.lyrics.totalDuration}s`);
+                log(`Verses: ${currentSong.lyrics.verses.length}`);
+                
+                // Load audio
+                audioPlayer.src = currentSong.musicUrl;
+                audioPlayer.load();
+                
+                // Reset state
+                currentVerseIndex = -1;
+                isPlaying = false;
+                document.getElementById('playBtn').textContent = '▶️ Play';
+                
+                // Render timeline
+                renderTimeline();
+                
+                // Check for issues
+                analyzeIssues();
+                
+                // Display first verse
+                updateDisplay(0);
+                
+            } catch (error) {
+                console.error('Failed to load song:', error);
+                log(`ERROR: ${error.message}`);
+            }
+        }
+        
+        function renderTimeline() {
+            const timeline = document.getElementById('timeline');
+            const totalDuration = currentSong.lyrics.totalDuration;
+            const timelineWidth = timeline.offsetWidth;
+            
+            // Clear existing blocks
+            timeline.querySelectorAll('.verse-block').forEach(el => el.remove());
+            
+            // Add verse blocks
+            currentSong.lyrics.verses.forEach((verse, index) => {
+                const block = document.createElement('div');
+                block.className = `verse-block ${verse.singer}`;
+                block.style.left = `${(verse.startTime / totalDuration) * timelineWidth}px`;
+                block.style.width = `${(verse.duration / totalDuration) * timelineWidth}px`;
+                block.innerHTML = `V${index + 1} (${verse.singer})<br>${verse.duration}s`;
+                block.onclick = () => seekToVerse(index);
+                timeline.appendChild(block);
+            });
+        }
+        
+        function analyzeIssues() {
+            const issues = document.getElementById('issues');
+            issues.innerHTML = '';
+            
+            let currentTime = 0;
+            let gaps = [];
+            
+            currentSong.lyrics.verses.forEach((verse, index) => {
+                if (verse.startTime > currentTime) {
+                    gaps.push({
+                        start: currentTime,
+                        end: verse.startTime,
+                        duration: verse.startTime - currentTime
+                    });
+                }
+                currentTime = verse.startTime + verse.duration;
+            });
+            
+            if (gaps.length > 0) {
+                const totalGapTime = gaps.reduce((sum, g) => sum + g.duration, 0);
+                issues.innerHTML += `<div class="issue-indicator">⚠️ ${gaps.length} gaps totaling ${totalGapTime.toFixed(1)}s</div>`;
+                log(`Found ${gaps.length} gaps in timeline`);
+            }
+            
+            // Calculate coverage
+            const coverage = (currentTime / currentSong.lyrics.totalDuration) * 100;
+            document.getElementById('coverage').textContent = `${coverage.toFixed(1)}%`;
+            
+            if (coverage < 90) {
+                issues.innerHTML += `<div class="issue-indicator">⚠️ Low lyric coverage: ${coverage.toFixed(1)}%</div>`;
+            }
+        }
+        
+        function togglePlay() {
+            if (isPlaying) {
+                pause();
+            } else {
+                play();
+            }
+        }
+        
+        function play() {
+            audioPlayer.play();
+            isPlaying = true;
+            document.getElementById('playBtn').textContent = '⏸️ Pause';
+            animate();
+        }
+        
+        function pause() {
+            audioPlayer.pause();
+            isPlaying = false;
+            document.getElementById('playBtn').textContent = '▶️ Play';
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+            }
+        }
+        
+        function restart() {
+            audioPlayer.currentTime = 0;
+            currentVerseIndex = -1;
+            updateDisplay(0);
+        }
+        
+        function seekToVerse(index) {
+            const verse = currentSong.lyrics.verses[index];
+            audioPlayer.currentTime = verse.startTime;
+            currentVerseIndex = index;
+            updateDisplay(audioPlayer.currentTime);
+        }
+        
+        function animate() {
+            if (!isPlaying) return;
+            
+            const currentTime = audioPlayer.currentTime;
+            updateDisplay(currentTime);
+            updatePlayhead(currentTime);
+            
+            animationFrame = requestAnimationFrame(animate);
+        }
+        
+        function updateDisplay(currentTime) {
+            if (!currentSong) return;
+            
+            // Update time display
+            document.getElementById('currentTime').textContent = `${currentTime.toFixed(1)}s`;
+            
+            // Find current verse
+            let activeVerseIndex = -1;
+            let nextSwitch = null;
+            
+            for (let i = 0; i < currentSong.lyrics.verses.length; i++) {
+                const verse = currentSong.lyrics.verses[i];
+                const verseEnd = verse.startTime + verse.duration;
+                
+                if (currentTime >= verse.startTime && currentTime < verseEnd) {
+                    activeVerseIndex = i;
+                    nextSwitch = verseEnd - currentTime;
+                    break;
+                } else if (currentTime < verse.startTime) {
+                    nextSwitch = verse.startTime - currentTime;
+                    break;
+                }
+            }
+            
+            // Update verse display if changed
+            if (activeVerseIndex !== currentVerseIndex) {
+                currentVerseIndex = activeVerseIndex;
+                
+                if (activeVerseIndex >= 0) {
+                    const verse = currentSong.lyrics.verses[activeVerseIndex];
+                    displayVerse(verse, activeVerseIndex);
+                    log(`Switched to verse ${activeVerseIndex + 1} (${verse.singer})`);
+                } else {
+                    displayNoVerse();
+                }
+            }
+            
+            // Update current verse indicator
+            document.getElementById('currentVerse').textContent = 
+                activeVerseIndex >= 0 ? `V${activeVerseIndex + 1}` : '-';
+            
+            // Update next switch time
+            document.getElementById('nextSwitch').textContent = 
+                nextSwitch !== null ? `${nextSwitch.toFixed(1)}s` : '-';
+            
+            // Update line highlighting within verse
+            if (activeVerseIndex >= 0) {
+                updateLineHighlight(currentTime);
+            }
+        }
+        
+        function displayVerse(verse, index) {
+            const singerIndicator = document.getElementById('singerIndicator');
+            const lyricsContent = document.getElementById('lyricsContent');
+            
+            singerIndicator.className = `singer-indicator ${verse.singer}`;
+            singerIndicator.textContent = verse.singer === 'player' ? 'Your Turn!' : 'Zeldina Sings';
+            
+            lyricsContent.innerHTML = verse.lines.map((line, i) => 
+                `<div class="lyrics-line" data-line="${i}">${line}</div>`
+            ).join('');
+        }
+        
+        function displayNoVerse() {
+            const singerIndicator = document.getElementById('singerIndicator');
+            const lyricsContent = document.getElementById('lyricsContent');
+            
+            singerIndicator.className = 'singer-indicator';
+            singerIndicator.textContent = 'Waiting...';
+            lyricsContent.innerHTML = '<div class="lyrics-line">...</div>';
+        }
+        
+        function updateLineHighlight(currentTime) {
+            if (currentVerseIndex < 0) return;
+            
+            const verse = currentSong.lyrics.verses[currentVerseIndex];
+            const verseProgress = (currentTime - verse.startTime) / verse.duration;
+            const currentLineIndex = Math.floor(verseProgress * verse.lines.length);
+            
+            document.querySelectorAll('.lyrics-line').forEach((line, index) => {
+                line.classList.toggle('active', index === currentLineIndex);
+            });
+        }
+        
+        function updatePlayhead(currentTime) {
+            const timeline = document.getElementById('timeline');
+            const playhead = document.getElementById('playhead');
+            const progress = currentTime / currentSong.lyrics.totalDuration;
+            playhead.style.left = `${progress * timeline.offsetWidth}px`;
+        }
+        
+        function toggleDebug() {
+            debugMode = !debugMode;
+            document.getElementById('debug').style.display = debugMode ? 'block' : 'none';
+        }
+        
+        function log(message) {
+            if (!debugMode) return;
+            const debug = document.getElementById('debug');
+            const timestamp = new Date().toLocaleTimeString();
+            debug.innerHTML += `[${timestamp}] ${message}\n`;
+            debug.scrollTop = debug.scrollHeight;
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (currentSong) {
+                renderTimeline();
+            }
+        });
+        
+        // Load first song by default
+        loadSong('captain-tissue-vocals');
+    </script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+{
+  "song": "The Incredible Journey of Captain Tissue (With Vocals)",
+  "totalDuration": 32,
+  "verses": [
+    {
+      "index": 0,
+      "type": "verse",
+      "singer": "player",
+      "startTime": 0,
+      "duration": 18,
+      "endTime": 18,
+      "lines": 4,
+      "avgTimePerLine": 4.5
+    },
+    {
+      "index": 1,
+      "type": "chorus",
+      "singer": "ai",
+      "startTime": 18,
+      "duration": 4.5,
+      "endTime": 22.5,
+      "lines": 1,
+      "avgTimePerLine": 4.5
+    },
+    {
+      "index": 2,
+      "type": "verse",
+      "singer": "player",
+      "startTime": 22.5,
+      "duration": 9,
+      "endTime": 31.5,
+      "lines": 3,
+      "avgTimePerLine": 3
+    }
+  ],
+  "issues": {
+    "gaps": [],
+    "overlaps": [],
+    "coverage": 98.4375,
+    "shortPlayerVerses": 0
+  }
+}

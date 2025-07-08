@@ -1,0 +1,479 @@
+{
+  "basicWords": [
+    {
+      "text": "In",
+      "startTime": 0,
+      "duration": 0.8571428571428571,
+      "lineIndex": 0,
+      "wordIndex": 0,
+      "isLineStart": true,
+      "isLineEnd": false
+    },
+    {
+      "text": "a",
+      "startTime": 0.8571428571428571,
+      "duration": 0.8571428571428571,
+      "lineIndex": 0,
+      "wordIndex": 1,
+      "isLineStart": false,
+      "isLineEnd": false
+    },
+    {
+      "text": "bathroom",
+      "startTime": 1.7142857142857142,
+      "duration": 0.8571428571428571,
+      "lineIndex": 0,
+      "wordIndex": 2,
+      "isLineStart": false,
+      "isLineEnd": false
+    },
+    {
+      "text": "cabinet",
+      "startTime": 2.571428571428571,
+      "duration": 0.8571428571428571,
+      "lineIndex": 0,
+      "wordIndex": 3,
+      "isLineStart": false,
+      "isLineEnd": false
+    },
+    {
+      "text": "high",
+      "startTime": 3.4285714285714284,
+      "duration": 0.8571428571428571,
+      "lineIndex": 0,
+      "wordIndex": 4,
+      "isLineStart": false,
+      "isLineEnd": true
+    },
+    {
+      "text": "Where",
+      "startTime": 4.285714285714286,
+      "duration": 0.8571428571428571,
+      "lineIndex": 1,
+      "wordIndex": 0,
+      "isLineStart": true,
+      "isLineEnd": false
+    },
+    {
+      "text": "the",
+      "startTime": 5.142857142857142,
+      "duration": 0.8571428571428571,
+      "lineIndex": 1,
+      "wordIndex": 1,
+      "isLineStart": false,
+      "isLineEnd": false
+    },
+    {
+      "text": "cleaning",
+      "startTime": 5.999999999999999,
+      "duration": 0.8571428571428571,
+      "lineIndex": 1,
+      "wordIndex": 2,
+      "isLineStart": false,
+      "isLineEnd": false
+    },
+    {
+      "text": "supplies",
+      "startTime": 6.857142857142856,
+      "duration": 0.8571428571428571,
+      "lineIndex": 1,
+      "wordIndex": 3,
+      "isLineStart": false,
+      "isLineEnd": false
+    },
+    {
+      "text": "lie",
+      "startTime": 7.714285714285713,
+      "duration": 0.8571428571428571,
+      "lineIndex": 1,
+      "wordIndex": 4,
+      "isLineStart": false,
+      "isLineEnd": true
+    },
+    {
+      "text": "Lived",
+      "startTime": 8.57142857142857,
+      "duration": 0.8571428571428571,
+      "lineIndex": 2,
+      "wordIndex": 0,
+      "isLineStart": true,
+      "isLineEnd": false
+    },
+    {
+      "text": "a",
+      "startTime": 9.428571428571427,
+      "duration": 0.8571428571428571,
+      "lineIndex": 2,
+      "wordIndex": 1,
+      "isLineStart": false,
+      "isLineEnd": false
+    },
+    {
+      "text": "tissue",
+      "startTime": 10.285714285714285,
+      "duration": 0.8571428571428571,
+      "lineIndex": 2,
+      "wordIndex": 2,
+      "isLineStart": false,
+      "isLineEnd": false
+    },
+    {
+      "text": "box",
+      "startTime": 11.142857142857142,
+      "duration": 0.8571428571428571,
+      "lineIndex": 2,
+      "wordIndex": 3,
+      "isLineStart": false,
+      "isLineEnd": false
+    },
+    {
+      "text": "so",
+      "startTime": 12,
+      "duration": 0.8571428571428571,
+      "lineIndex": 2,
+      "wordIndex": 4,
+      "isLineStart": false,
+      "isLineEnd": false
+    },
+    {
+      "text": "brave",
+      "startTime": 12.857142857142858,
+      "duration": 0.8571428571428571,
+      "lineIndex": 2,
+      "wordIndex": 5,
+      "isLineStart": false,
+      "isLineEnd": true
+    },
+    {
+      "text": "Captain",
+      "startTime": 13.714285714285715,
+      "duration": 0.8571428571428571,
+      "lineIndex": 3,
+      "wordIndex": 0,
+      "isLineStart": true,
+      "isLineEnd": false
+    },
+    {
+      "text": "Tissue,",
+      "startTime": 14.571428571428573,
+      "duration": 0.8571428571428571,
+      "lineIndex": 3,
+      "wordIndex": 1,
+      "isLineStart": false,
+      "isLineEnd": false
+    },
+    {
+      "text": "soft",
+      "startTime": 15.42857142857143,
+      "duration": 0.8571428571428571,
+      "lineIndex": 3,
+      "wordIndex": 2,
+      "isLineStart": false,
+      "isLineEnd": false
+    },
+    {
+      "text": "and",
+      "startTime": 16.28571428571429,
+      "duration": 0.8571428571428571,
+      "lineIndex": 3,
+      "wordIndex": 3,
+      "isLineStart": false,
+      "isLineEnd": false
+    },
+    {
+      "text": "suave!",
+      "startTime": 17.142857142857146,
+      "duration": 0.8571428571428571,
+      "lineIndex": 3,
+      "wordIndex": 4,
+      "isLineStart": false,
+      "isLineEnd": true
+    }
+  ],
+  "smartWords": [
+    {
+      "text": "In",
+      "startTime": 0,
+      "duration": 0.30897498773908777,
+      "weight": 0.35,
+      "lineIndex": 0,
+      "wordIndex": 0,
+      "isLineStart": true,
+      "isLineEnd": false,
+      "emphasis": "low"
+    },
+    {
+      "text": "a",
+      "startTime": 0.30897498773908777,
+      "duration": 0.30897498773908777,
+      "weight": 0.35,
+      "lineIndex": 0,
+      "wordIndex": 1,
+      "isLineStart": false,
+      "isLineEnd": false,
+      "emphasis": "low"
+    },
+    {
+      "text": "bathroom",
+      "startTime": 0.6179499754781755,
+      "duration": 1.4124570868072586,
+      "weight": 1.6,
+      "lineIndex": 0,
+      "wordIndex": 2,
+      "isLineStart": false,
+      "isLineEnd": false,
+      "emphasis": "high"
+    },
+    {
+      "text": "cabinet",
+      "startTime": 2.030407062285434,
+      "duration": 1.235899950956351,
+      "weight": 1.4,
+      "lineIndex": 0,
+      "wordIndex": 3,
+      "isLineStart": false,
+      "isLineEnd": false,
+      "emphasis": "high"
+    },
+    {
+      "text": "high",
+      "startTime": 3.266307013241785,
+      "duration": 0.7062285434036293,
+      "weight": 0.8,
+      "lineIndex": 0,
+      "wordIndex": 4,
+      "isLineStart": false,
+      "isLineEnd": true,
+      "emphasis": "normal"
+    },
+    {
+      "text": "Where",
+      "startTime": 3.972535556645414,
+      "duration": 0.8827856792545365,
+      "weight": 1,
+      "lineIndex": 1,
+      "wordIndex": 0,
+      "isLineStart": true,
+      "isLineEnd": false,
+      "emphasis": "normal"
+    },
+    {
+      "text": "the",
+      "startTime": 4.85532123589995,
+      "duration": 0.37076998528690536,
+      "weight": 0.42,
+      "lineIndex": 1,
+      "wordIndex": 1,
+      "isLineStart": false,
+      "isLineEnd": false,
+      "emphasis": "low"
+    },
+    {
+      "text": "cleaning",
+      "startTime": 5.226091221186856,
+      "duration": 1.4124570868072586,
+      "weight": 1.6,
+      "lineIndex": 1,
+      "wordIndex": 2,
+      "isLineStart": false,
+      "isLineEnd": false,
+      "emphasis": "high"
+    },
+    {
+      "text": "supplies",
+      "startTime": 6.638548307994114,
+      "duration": 1.4124570868072586,
+      "weight": 1.6,
+      "lineIndex": 1,
+      "wordIndex": 3,
+      "isLineStart": false,
+      "isLineEnd": false,
+      "emphasis": "high"
+    },
+    {
+      "text": "lie",
+      "startTime": 8.051005394801372,
+      "duration": 0.5296714075527219,
+      "weight": 0.6,
+      "lineIndex": 1,
+      "wordIndex": 4,
+      "isLineStart": false,
+      "isLineEnd": true,
+      "emphasis": "low"
+    },
+    {
+      "text": "Lived",
+      "startTime": 8.580676802354095,
+      "duration": 0.8827856792545365,
+      "weight": 1,
+      "lineIndex": 2,
+      "wordIndex": 0,
+      "isLineStart": true,
+      "isLineEnd": false,
+      "emphasis": "normal"
+    },
+    {
+      "text": "a",
+      "startTime": 9.463462481608632,
+      "duration": 0.30897498773908777,
+      "weight": 0.35,
+      "lineIndex": 2,
+      "wordIndex": 1,
+      "isLineStart": false,
+      "isLineEnd": false,
+      "emphasis": "low"
+    },
+    {
+      "text": "tissue",
+      "startTime": 9.77243746934772,
+      "duration": 1.0593428151054438,
+      "weight": 1.2,
+      "lineIndex": 2,
+      "wordIndex": 2,
+      "isLineStart": false,
+      "isLineEnd": false,
+      "emphasis": "normal"
+    },
+    {
+      "text": "box",
+      "startTime": 10.831780284453163,
+      "duration": 0.5296714075527219,
+      "weight": 0.6,
+      "lineIndex": 2,
+      "wordIndex": 3,
+      "isLineStart": false,
+      "isLineEnd": false,
+      "emphasis": "low"
+    },
+    {
+      "text": "so",
+      "startTime": 11.361451692005886,
+      "duration": 0.4413928396272683,
+      "weight": 0.5,
+      "lineIndex": 2,
+      "wordIndex": 4,
+      "isLineStart": false,
+      "isLineEnd": false,
+      "emphasis": "low"
+    },
+    {
+      "text": "brave",
+      "startTime": 11.802844531633154,
+      "duration": 0.8827856792545365,
+      "weight": 1,
+      "lineIndex": 2,
+      "wordIndex": 5,
+      "isLineStart": false,
+      "isLineEnd": true,
+      "emphasis": "normal"
+    },
+    {
+      "text": "Captain",
+      "startTime": 12.685630210887691,
+      "duration": 1.235899950956351,
+      "weight": 1.4,
+      "lineIndex": 3,
+      "wordIndex": 0,
+      "isLineStart": true,
+      "isLineEnd": false,
+      "emphasis": "high"
+    },
+    {
+      "text": "Tissue,",
+      "startTime": 13.921530161844043,
+      "duration": 1.5007356547327122,
+      "weight": 1.7,
+      "lineIndex": 3,
+      "wordIndex": 1,
+      "isLineStart": false,
+      "isLineEnd": false,
+      "emphasis": "high"
+    },
+    {
+      "text": "soft",
+      "startTime": 15.422265816576754,
+      "duration": 0.7062285434036293,
+      "weight": 0.8,
+      "lineIndex": 3,
+      "wordIndex": 2,
+      "isLineStart": false,
+      "isLineEnd": false,
+      "emphasis": "normal"
+    },
+    {
+      "text": "and",
+      "startTime": 16.128494359980383,
+      "duration": 0.37076998528690536,
+      "weight": 0.42,
+      "lineIndex": 3,
+      "wordIndex": 3,
+      "isLineStart": false,
+      "isLineEnd": false,
+      "emphasis": "low"
+    },
+    {
+      "text": "suave!",
+      "startTime": 16.49926434526729,
+      "duration": 1.5007356547327122,
+      "weight": 1.7,
+      "lineIndex": 3,
+      "wordIndex": 4,
+      "isLineStart": false,
+      "isLineEnd": true,
+      "emphasis": "high"
+    }
+  ],
+  "validation": {
+    "stats": {
+      "totalWords": 21,
+      "avgWordDuration": 0.8571428571428571,
+      "minWordDuration": 0.30897498773908777,
+      "maxWordDuration": 1.5007356547327122,
+      "rapidWords": 0,
+      "slowWords": 2
+    },
+    "issues": [
+      {
+        "type": "slow",
+        "wordIndex": 17,
+        "word": "Tissue,",
+        "duration": 1.5007356547327122
+      },
+      {
+        "type": "slow",
+        "wordIndex": 20,
+        "word": "suave!",
+        "duration": 1.5007356547327122
+      },
+      {
+        "type": "unnatural_transition",
+        "from": "a",
+        "to": "bathroom",
+        "ratio": 4.571428571428572
+      },
+      {
+        "type": "unnatural_transition",
+        "from": "the",
+        "to": "cleaning",
+        "ratio": 3.8095238095238098
+      },
+      {
+        "type": "unnatural_transition",
+        "from": "a",
+        "to": "tissue",
+        "ratio": 3.428571428571429
+      },
+      {
+        "type": "unnatural_transition",
+        "from": "and",
+        "to": "suave!",
+        "ratio": 4.0476190476190474
+      }
+    ]
+  },
+  "displayModes": [
+    "wordHighlight",
+    "progressiveFill",
+    "bounceBall"
+  ]
+}

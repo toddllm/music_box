@@ -1,0 +1,178 @@
+{
+  "even": [
+    {
+      "type": "verse",
+      "singer": "player",
+      "lines": [
+        "In a bathroom cabinet high",
+        "Where the cleaning supplies lie",
+        "Lived a tissue box so brave",
+        "Captain Tissue, soft and suave!"
+      ],
+      "startTime": 0,
+      "duration": 16
+    },
+    {
+      "type": "chorus",
+      "singer": "ai",
+      "lines": [
+        "Soft and strong, white and true"
+      ],
+      "startTime": 16,
+      "duration": 4
+    },
+    {
+      "type": "verse",
+      "singer": "player",
+      "lines": [
+        "Captain Tissue's there for you!",
+        "Pull one out, then pull some more",
+        "Comfort knocking at your door!"
+      ],
+      "startTime": 20,
+      "duration": 12
+    }
+  ],
+  "weighted": [
+    {
+      "type": "verse",
+      "singer": "player",
+      "lines": [
+        "In a bathroom cabinet high",
+        "Where the cleaning supplies lie",
+        "Lived a tissue box so brave",
+        "Captain Tissue, soft and suave!"
+      ],
+      "startTime": 0,
+      "duration": 15.333333333333334
+    },
+    {
+      "type": "chorus",
+      "singer": "ai",
+      "lines": [
+        "Soft and strong, white and true"
+      ],
+      "startTime": 15.333333333333334,
+      "duration": 4.133333333333333
+    },
+    {
+      "type": "verse",
+      "singer": "player",
+      "lines": [
+        "Captain Tissue's there for you!",
+        "Pull one out, then pull some more",
+        "Comfort knocking at your door!"
+      ],
+      "startTime": 19.46666666666667,
+      "duration": 12.533333333333333
+    }
+  ],
+  "gaps": [
+    {
+      "type": "verse",
+      "singer": "player",
+      "lines": [
+        "In a bathroom cabinet high",
+        "Where the cleaning supplies lie",
+        "Lived a tissue box so brave",
+        "Captain Tissue, soft and suave!"
+      ],
+      "startTime": 0,
+      "duration": 15
+    },
+    {
+      "type": "chorus",
+      "singer": "ai",
+      "lines": [
+        "Soft and strong, white and true"
+      ],
+      "startTime": 16,
+      "duration": 3.75
+    },
+    {
+      "type": "verse",
+      "singer": "player",
+      "lines": [
+        "Captain Tissue's there for you!",
+        "Pull one out, then pull some more",
+        "Comfort knocking at your door!"
+      ],
+      "startTime": 20.75,
+      "duration": 11.25
+    }
+  ],
+  "preparation": [
+    {
+      "type": "verse",
+      "singer": "player",
+      "lines": [
+        "In a bathroom cabinet high",
+        "Where the cleaning supplies lie",
+        "Lived a tissue box so brave",
+        "Captain Tissue, soft and suave!"
+      ],
+      "startTime": 0,
+      "duration": 16,
+      "preparationTime": 2
+    },
+    {
+      "type": "chorus",
+      "singer": "ai",
+      "lines": [
+        "Soft and strong, white and true"
+      ],
+      "startTime": 14,
+      "duration": 3.5,
+      "preparationTime": 0
+    },
+    {
+      "type": "verse",
+      "singer": "player",
+      "lines": [
+        "Captain Tissue's there for you!",
+        "Pull one out, then pull some more",
+        "Comfort knocking at your door!"
+      ],
+      "startTime": 15.5,
+      "duration": 12.5,
+      "preparationTime": 2
+    }
+  ],
+  "syllable": [
+    {
+      "type": "verse",
+      "singer": "player",
+      "lines": [
+        "In a bathroom cabinet high",
+        "Where the cleaning supplies lie",
+        "Lived a tissue box so brave",
+        "Captain Tissue, soft and suave!"
+      ],
+      "syllables": 33,
+      "startTime": 0,
+      "duration": 16.246153846153845
+    },
+    {
+      "type": "chorus",
+      "singer": "ai",
+      "lines": [
+        "Soft and strong, white and true"
+      ],
+      "syllables": 7,
+      "startTime": 16.246153846153845,
+      "duration": 3.446153846153846
+    },
+    {
+      "type": "verse",
+      "singer": "player",
+      "lines": [
+        "Captain Tissue's there for you!",
+        "Pull one out, then pull some more",
+        "Comfort knocking at your door!"
+      ],
+      "syllables": 25,
+      "startTime": 19.69230769230769,
+      "duration": 12.307692307692307
+    }
+  ]
+}

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Box Karaoke Sync Experiments Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-card: #0f3460;
+            --accent-purple: #9d4edd;
+            --accent-pink: #ff006e;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --text-primary: #ffffff;
+            --text-secondary: #e4e4e7;
+            --text-muted: #a1a1aa;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            --success-color: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px 20px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .status-banner {
+            background: rgba(157, 78, 221, 0.1);
+            border: 1px solid var(--accent-purple);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .status-banner i {
+            color: var(--accent-purple);
+            margin-right: 10px;
+        }
+
+        .experiments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .experiment-card {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .experiment-card:hover {
+            border-color: var(--accent-purple);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(157, 78, 221, 0.3);
+        }
+
+        .experiment-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-purple) 0%, var(--accent-pink) 100%);
+        }
+
+        .experiment-card.visual::before {
+            background: linear-gradient(90deg, var(--accent-blue) 0%, var(--accent-green) 100%);
+        }
+
+        .experiment-card.analysis::before {
+            background: linear-gradient(90deg, var(--accent-green) 0%, var(--warning-color) 100%);
+        }
+
+        .experiment-card h3 {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .experiment-card p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-type {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .type-interactive {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+        }
+
+        .type-analysis {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+        }
+
+        .type-poc {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning-color);
+        }
+
+        .findings-section {
+            background: var(--bg-secondary);
+            padding: 40px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+        }
+
+        .findings-section h2 {
+            color: var(--accent-pink);
+            margin-bottom: 25px;
+            font-size: 2rem;
+        }
+
+        .finding-item {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--accent-purple);
+        }
+
+        .finding-item h4 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .finding-item p {
+            color: var(--text-secondary);
+        }
+
+        .links-section {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .link-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .link-btn:hover {
+            background: var(--accent-purple);
+            border-color: var(--accent-purple);
+            transform: translateY(-2px);
+        }
+
+        .code-snippet {
+            background: #000;
+            color: #0f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        .timestamp {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 60px;
+        }
+
+        @media (max-width: 768px) {
+            .experiments-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎤 Karaoke Sync Experiments</h1>
+            <p class="subtitle">Music Box Vocal Karaoke Synchronization Research</p>
+            <p class="timestamp">Generated: <span id="timestamp"></span></p>
+        </header>
+
+        <div class="status-banner">
+            <i class="fas fa-flask"></i>
+            <strong>Experimental Features</strong> - These tools are for testing and improving karaoke synchronization
+        </div>
+
+        <div class="findings-section">
+            <h2>📊 Key Findings</h2>
+            
+            <div class="finding-item">
+                <h4>🐛 Issue 1: Player Lyrics Not Displaying</h4>
+                <p>The current implementation only shows lyrics during AI (Zeldina) parts. Player verses appear blank due to line-level update issues.</p>
+            </div>
+            
+            <div class="finding-item">
+                <h4>⏱️ Issue 2: Coarse Timing Granularity</h4>
+                <p>Using verse-level timing (e.g., 18 seconds for 4 lines) instead of line-by-line or word-by-word timing causes poor synchronization.</p>
+            </div>
+            
+            <div class="finding-item">
+                <h4>👀 Issue 3: No Preparation Time</h4>
+                <p>Players see lyrics exactly when they should start singing, with no read-ahead time to prepare.</p>
+            </div>
+        </div>
+
+        <div class="experiments-grid">
+            <div class="experiment-card visual" onclick="window.open('karaoke-sync-visual-test.html', '_blank')">
+                <h3>🎯 Visual Sync Debugger</h3>
+                <p>Interactive timeline visualization showing verse blocks, gaps, and real-time playhead. Test synchronization with all 5 pre-generated songs.</p>
+                <div class="card-meta">
+                    <span class="card-type type-interactive">Interactive</span>
+                    <i class="fas fa-external-link-alt"></i>
+                </div>
+            </div>
+
+            <div class="experiment-card analysis" onclick="window.open('sync-analysis-results.json', '_blank')">
+                <h3>📈 Timing Analysis Results</h3>
+                <p>Detailed analysis of current timing structure including gaps, overlaps, coverage statistics, and identified issues.</p>
+                <div class="card-meta">
+                    <span class="card-type type-analysis">Data Analysis</span>
+                    <i class="fas fa-external-link-alt"></i>
+                </div>
+            </div>
+
+            <div class="experiment-card visual" onclick="window.open('word-level-preview.html', '_blank')">
+                <h3>🔤 Word-Level Sync Preview</h3>
+                <p>Demonstrates word-by-word karaoke timing with smart weighting based on word length and punctuation.</p>
+                <div class="card-meta">
+                    <span class="card-type type-interactive">Interactive</span>
+                    <i class="fas fa-external-link-alt"></i>
+                </div>
+            </div>
+
+            <div class="experiment-card analysis" onclick="window.open('timing-methods-comparison.json', '_blank')">
+                <h3>⏰ Timing Methods Comparison</h3>
+                <p>Comparison of 5 different timing extraction methods including even distribution, syllable-based, and preparation time approaches.</p>
+                <div class="card-meta">
+                    <span class="card-type type-analysis">Data Analysis</span>
+                    <i class="fas fa-external-link-alt"></i>
+                </div>
+            </div>
+
+            <div class="experiment-card analysis" onclick="window.open('word-level-sync-results.json', '_blank')">
+                <h3>📝 Word-Level Sync Data</h3>
+                <p>Detailed word-by-word timing data with validation results, including rapid/slow word detection and transition analysis.</p>
+                <div class="card-meta">
+                    <span class="card-type type-analysis">Data Analysis</span>
+                    <i class="fas fa-external-link-alt"></i>
+                </div>
+            </div>
+
+            <div class="experiment-card poc" onclick="window.open('karaoke-sync-findings.md', '_blank')">
+                <h3>📚 Research Documentation</h3>
+                <p>Comprehensive findings document with recommendations, proposed solutions, and roadmap for improvements.</p>
+                <div class="card-meta">
+                    <span class="card-type type-poc">Documentation</span>
+                    <i class="fas fa-external-link-alt"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="links-section">
+            <h2>🔗 Quick Links</h2>
+            <div class="links-grid">
+                <a href="../music-box-vocal-karaoke.html" class="link-btn">
+                    <i class="fas fa-microphone"></i>
+                    Main Karaoke App
+                </a>
+                <a href="../test-vocal-karaoke.html" class="link-btn">
+                    <i class="fas fa-music"></i>
+                    Test Songs
+                </a>
+                <a href="../karaoke-songs/catalog.json" class="link-btn">
+                    <i class="fas fa-database"></i>
+                    Song Catalog
+                </a>
+                <a href="https://github.com/toddllm/music_box" class="link-btn" target="_blank">
+                    <i class="fab fa-github"></i>
+                    GitHub Repo
+                </a>
+            </div>
+        </div>
+
+        <div class="findings-section">
+            <h2>💡 Recommended Solutions</h2>
+            
+            <div class="finding-item">
+                <h4>1. Immediate Fix: Line-Level Timing</h4>
+                <p>Update the display to show all lines and highlight the current one progressively. Add 2-3 second preparation time before player verses.</p>
+                <div class="code-snippet">
+// Calculate time per line
+const timePerLine = verseDuration / lineCount;
+const currentLineIndex = Math.floor(verseTime / timePerLine);
+
+// Show all lines with current highlight
+lines.forEach((line, i) => {
+    line.classList.toggle('current', i === currentLineIndex);
+});
+                </div>
+            </div>
+            
+            <div class="finding-item">
+                <h4>2. Better: Word-Level Timing</h4>
+                <p>Implement word-by-word synchronization with smart weighting for natural pacing. See the word-level preview demo.</p>
+            </div>
+            
+            <div class="finding-item">
+                <h4>3. Best: Audio-Driven Alignment</h4>
+                <p>Use voice activity detection (VAD) and forced alignment to automatically sync lyrics to actual vocal timing in the audio.</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>Music Box Karaoke Sync Experiments</p>
+            <p>These experiments help identify and solve synchronization issues in the vocal karaoke system.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Set timestamp
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        
+        // Add some interactivity
+        document.querySelectorAll('.experiment-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-5px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>

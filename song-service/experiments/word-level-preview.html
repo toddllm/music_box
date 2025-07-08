@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .word { 
+            display: inline-block; 
+            margin: 0 4px;
+            transition: all 0.2s ease;
+        }
+        .word.active { 
+            color: #ff006e;
+            font-weight: bold;
+            transform: scale(1.2);
+        }
+        .word.upcoming { 
+            color: #9d4edd;
+        }
+        .word.done { 
+            color: #666;
+        }
+        .progress-word {
+            display: inline-block;
+            margin: 0 4px;
+            position: relative;
+            background: linear-gradient(to right, 
+                #ff006e 0%, 
+                #ff006e var(--fill), 
+                #333 var(--fill), 
+                #333 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body>
+    <h2>Word-Level Karaoke Preview</h2>
+    <div id="display"></div>
+    <script>
+        const words = [{"text":"In","startTime":0,"duration":0.30897498773908777,"weight":0.35,"lineIndex":0,"wordIndex":0,"isLineStart":true,"isLineEnd":false,"emphasis":"low"},{"text":"a","startTime":0.30897498773908777,"duration":0.30897498773908777,"weight":0.35,"lineIndex":0,"wordIndex":1,"isLineStart":false,"isLineEnd":false,"emphasis":"low"},{"text":"bathroom","startTime":0.6179499754781755,"duration":1.4124570868072586,"weight":1.6,"lineIndex":0,"wordIndex":2,"isLineStart":false,"isLineEnd":false,"emphasis":"high"},{"text":"cabinet","startTime":2.030407062285434,"duration":1.235899950956351,"weight":1.4,"lineIndex":0,"wordIndex":3,"isLineStart":false,"isLineEnd":false,"emphasis":"high"},{"text":"high","startTime":3.266307013241785,"duration":0.7062285434036293,"weight":0.8,"lineIndex":0,"wordIndex":4,"isLineStart":false,"isLineEnd":true,"emphasis":"normal"},{"text":"Where","startTime":3.972535556645414,"duration":0.8827856792545365,"weight":1,"lineIndex":1,"wordIndex":0,"isLineStart":true,"isLineEnd":false,"emphasis":"normal"},{"text":"the","startTime":4.85532123589995,"duration":0.37076998528690536,"weight":0.42,"lineIndex":1,"wordIndex":1,"isLineStart":false,"isLineEnd":false,"emphasis":"low"},{"text":"cleaning","startTime":5.226091221186856,"duration":1.4124570868072586,"weight":1.6,"lineIndex":1,"wordIndex":2,"isLineStart":false,"isLineEnd":false,"emphasis":"high"},{"text":"supplies","startTime":6.638548307994114,"duration":1.4124570868072586,"weight":1.6,"lineIndex":1,"wordIndex":3,"isLineStart":false,"isLineEnd":false,"emphasis":"high"},{"text":"lie","startTime":8.051005394801372,"duration":0.5296714075527219,"weight":0.6,"lineIndex":1,"wordIndex":4,"isLineStart":false,"isLineEnd":true,"emphasis":"low"},{"text":"Lived","startTime":8.580676802354095,"duration":0.8827856792545365,"weight":1,"lineIndex":2,"wordIndex":0,"isLineStart":true,"isLineEnd":false,"emphasis":"normal"},{"text":"a","startTime":9.463462481608632,"duration":0.30897498773908777,"weight":0.35,"lineIndex":2,"wordIndex":1,"isLineStart":false,"isLineEnd":false,"emphasis":"low"},{"text":"tissue","startTime":9.77243746934772,"duration":1.0593428151054438,"weight":1.2,"lineIndex":2,"wordIndex":2,"isLineStart":false,"isLineEnd":false,"emphasis":"normal"},{"text":"box","startTime":10.831780284453163,"duration":0.5296714075527219,"weight":0.6,"lineIndex":2,"wordIndex":3,"isLineStart":false,"isLineEnd":false,"emphasis":"low"},{"text":"so","startTime":11.361451692005886,"duration":0.4413928396272683,"weight":0.5,"lineIndex":2,"wordIndex":4,"isLineStart":false,"isLineEnd":false,"emphasis":"low"},{"text":"brave","startTime":11.802844531633154,"duration":0.8827856792545365,"weight":1,"lineIndex":2,"wordIndex":5,"isLineStart":false,"isLineEnd":true,"emphasis":"normal"},{"text":"Captain","startTime":12.685630210887691,"duration":1.235899950956351,"weight":1.4,"lineIndex":3,"wordIndex":0,"isLineStart":true,"isLineEnd":false,"emphasis":"high"},{"text":"Tissue,","startTime":13.921530161844043,"duration":1.5007356547327122,"weight":1.7,"lineIndex":3,"wordIndex":1,"isLineStart":false,"isLineEnd":false,"emphasis":"high"},{"text":"soft","startTime":15.422265816576754,"duration":0.7062285434036293,"weight":0.8,"lineIndex":3,"wordIndex":2,"isLineStart":false,"isLineEnd":false,"emphasis":"normal"},{"text":"and","startTime":16.128494359980383,"duration":0.37076998528690536,"weight":0.42,"lineIndex":3,"wordIndex":3,"isLineStart":false,"isLineEnd":false,"emphasis":"low"},{"text":"suave!","startTime":16.49926434526729,"duration":1.5007356547327122,"weight":1.7,"lineIndex":3,"wordIndex":4,"isLineStart":false,"isLineEnd":true,"emphasis":"high"}];
+        let currentTime = 0;
+        
+        function render() {
+            const display = document.getElementById('display');
+            display.innerHTML = words.map((w, i) => {
+                const isActive = currentTime >= w.startTime && currentTime < w.startTime + w.duration;
+                const isDone = currentTime >= w.startTime + w.duration;
+                const isUpcoming = currentTime < w.startTime && currentTime > w.startTime - 1;
+                
+                let className = 'word';
+                if (isActive) className += ' active';
+                else if (isDone) className += ' done';
+                else if (isUpcoming) className += ' upcoming';
+                
+                return `<span class="${className}">${w.text}</span>${w.isLineEnd ? '<br>' : ''}`;
+            }).join('');
+        }
+        
+        setInterval(() => {
+            currentTime += 0.1;
+            if (currentTime > 18) currentTime = 0;
+            render();
+        }, 100);
+        
+        render();
+    </script>
+</body>
+</html>
