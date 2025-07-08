@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fal.ai Singing Models - Enhanced with Vocals</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0a0a0a;
+            color: #e0e0e0;
+        }
+        h1 {
+            color: #ff006e;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .model-selector {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #3a3a3a;
+        }
+        .input-section {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #3a3a3a;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #b0b0b0;
+        }
+        select, input, textarea {
+            width: 100%;
+            padding: 10px;
+            background: #1a1a1a;
+            border: 1px solid #4a4a4a;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+            font-family: monospace;
+        }
+        .model-info {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .warning {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid #ffc107;
+            color: #ffc107;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .success {
+            background: rgba(40, 167, 69, 0.2);
+            border: 1px solid #28a745;
+            color: #28a745;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+        .btn-primary {
+            background: #ff006e;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #d0005a;
+            transform: translateY(-1px);
+        }
+        .btn-primary:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-secondary {
+            background: #3a86ff;
+            color: white;
+        }
+        .template-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .template-btn {
+            padding: 8px 16px;
+            background: #3a3a3a;
+            border: 1px solid #4a4a4a;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #8338ec;
+        }
+        .template-btn:hover {
+            background: #4a4a4a;
+        }
+        .results {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            border: 1px solid #3a3a3a;
+        }
+        .result-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            border: 1px solid #3a3a3a;
+        }
+        .audio-player {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+        .status.loading {
+            background: rgba(58, 134, 255, 0.2);
+            border: 1px solid #3a86ff;
+            color: #3a86ff;
+        }
+        .status.success {
+            background: rgba(6, 255, 165, 0.2);
+            border: 1px solid #06ffa5;
+            color: #06ffa5;
+        }
+        .status.error {
+            background: rgba(255, 0, 110, 0.2);
+            border: 1px solid #ff006e;
+            color: #ff006e;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        code {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .tab-btn {
+            padding: 8px 16px;
+            background: #2a2a2a;
+            border: 1px solid #4a4a4a;
+            color: #e0e0e0;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        .tab-btn.active {
+            background: #ff006e;
+            border-color: #ff006e;
+        }
+        .lyrics-format {
+            display: none;
+        }
+        .lyrics-format.active {
+            display: block;
+        }
+        .timestamp-helper {
+            margin-top: 10px;
+            padding: 10px;
+            background: #1a1a1a;
+            border-radius: 6px;
+        }
+        .timestamp-btn {
+            padding: 4px 8px;
+            background: #333;
+            border: 1px solid #555;
+            color: #aaa;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎵 Fal.ai Singing Models - With Vocals!</h1>
+    
+    <div class="model-selector">
+        <h2>Select Model</h2>
+        <div class="form-group">
+            <label for="model">Singing Model</label>
+            <select id="model" onchange="updateModelUI()">
+                <option value="fal-ai/diffrhythm">DiffRhythm - Fast with Timestamps (Recommended)</option>
+                <option value="fal-ai/yue">YuE - Full Song Generation (May be slow/unavailable)</option>
+                <option value="fal-ai/ace-step/audio-inpaint">ACE-Step - Add Vocals to Instrumental</option>
+            </select>
+            <div class="model-info" id="modelInfo">
+                <strong>DiffRhythm:</strong> Generates songs with vocals in 4-5 seconds. 
+                <span style="color: #ffc107;">⚠️ REQUIRES timestamped lyrics [mm:ss.xx] for vocals!</span> 
+                Without timestamps = instrumental only.
+            </div>
+        </div>
+    </div>
+
+    <div class="input-section">
+        <h2>Input Parameters</h2>
+        
+        <!-- Common inputs -->
+        <div class="form-group" id="lyricsGroup">
+            <label for="lyrics">Lyrics</label>
+            
+            <div class="tab-buttons" id="formatTabs" style="display: none;">
+                <button class="tab-btn active" onclick="switchFormat('markdown')">Markdown Format</button>
+                <button class="tab-btn" onclick="switchFormat('timestamp')">Timestamped Format</button>
+            </div>
+            
+            <div id="markdownFormat" class="lyrics-format active">
+                <textarea id="lyricsMarkdown" placeholder="[verse]&#10;Write your lyrics here...&#10;&#10;[chorus]&#10;This is the chorus...">[verse]
+In the kitchen of King Arthur's greatest knight
+Lived a spoon of silver, shining bright
+Sir Wiggleton was his noble name
+Destined for culinary fame!
+
+[chorus]
+Oh Wiggleton, brave Wiggleton
+Your handle gleams in morning sun
+From cereal bowls to royal stew
+There's no one quite as stirring as you!</textarea>
+            </div>
+            
+            <div id="timestampFormat" class="lyrics-format">
+                <textarea id="lyricsTimestamp" placeholder="[00:00.00]First line of lyrics&#10;[00:04.50]Second line of lyrics...">[00:00.00]In the kitchen of King Arthur's greatest knight
+[00:04.50]Lived a spoon of silver, shining bright
+[00:09.00]Sir Wiggleton was his noble name
+[00:13.50]Destined for culinary fame!
+[00:18.00]Oh Wiggleton, brave Wiggleton
+[00:22.50]Your handle gleams in morning sun
+[00:27.00]From cereal bowls to royal stew
+[00:31.50]There's no one quite as stirring as you!</textarea>
+                <div class="timestamp-helper">
+                    <small>Quick add: </small>
+                    <button class="timestamp-btn" onclick="addTimestamp(0)">+0s</button>
+                    <button class="timestamp-btn" onclick="addTimestamp(4.5)">+4.5s</button>
+                    <button class="timestamp-btn" onclick="addTimestamp(9)">+9s</button>
+                    <button class="timestamp-btn" onclick="autoTimestamp()">Auto-timestamp lines</button>
+                </div>
+            </div>
+            
+            <div class="template-buttons">
+                <button class="template-btn" onclick="loadTemplate('spoon')">Spoon Ballad</button>
+                <button class="template-btn" onclick="loadTemplate('shoelace')">Shoelace Romance</button>
+                <button class="template-btn" onclick="loadTemplate('sandwich')">Singing Sandwich</button>
+                <button class="template-btn" onclick="loadTemplate('simple')">Simple Test</button>
+            </div>
+        </div>
+        
+        <div class="form-group" id="genresGroup">
+            <label for="genres">Genres/Style</label>
+            <input type="text" id="genres" placeholder="epic orchestral heroic" value="epic orchestral heroic male vocal">
+            <small style="color: #888;">For YuE: space-separated (e.g., "epic orchestral heroic"). For DiffRhythm: descriptive style.</small>
+        </div>
+        
+        <!-- Model-specific inputs -->
+        <div id="inpaintInputs" class="model-specific" style="display: none;">
+            <h3>ACE-Step Audio Inpaint Options</h3>
+            <div class="form-group">
+                <label for="audioFile">Instrumental Track (required)</label>
+                <input type="file" id="audioFile" accept="audio/*">
+            </div>
+            <div class="form-group">
+                <label for="startTime">Start Time (seconds)</label>
+                <input type="number" id="startTime" value="0" min="0" step="0.1">
+            </div>
+            <div class="form-group">
+                <label for="endTime">End Time (seconds)</label>
+                <input type="number" id="endTime" value="30" min="0" step="0.1">
+            </div>
+        </div>
+        
+        <button class="btn-primary" id="generateBtn" onclick="generateSinging()">
+            🎤 Generate Singing with Vocals
+        </button>
+        
+        <div id="status" style="display: none;"></div>
+    </div>
+    
+    <div class="results" id="results" style="display: none;">
+        <h2>Generated Output</h2>
+        <div id="resultsContent"></div>
+    </div>
+
+    <script>
+        const API_URL = 'https://pd08901pf7.execute-api.us-east-1.amazonaws.com/prod';
+        
+        const templates = {
+            spoon: {
+                markdown: `[verse]
+In the kitchen of King Arthur's greatest knight
+Lived a spoon of silver, shining bright
+Sir Wiggleton was his noble name
+Destined for culinary fame!
+
+[chorus]
+Oh Wiggleton, brave Wiggleton
+Your handle gleams in morning sun
+From cereal bowls to royal stew
+There's no one quite as stirring as you!
+
+[verse]
+He stirred the soup with valor true
+He mixed the batter, through and through
+No bowl too deep, no pot too wide
+Sir Wiggleton stirred with knightly pride!`,
+                timestamp: `[00:00.00]In the kitchen of King Arthur's greatest knight
+[00:04.50]Lived a spoon of silver, shining bright
+[00:09.00]Sir Wiggleton was his noble name
+[00:13.50]Destined for culinary fame!
+[00:18.00]Oh Wiggleton, brave Wiggleton
+[00:22.50]Your handle gleams in morning sun
+[00:27.00]From cereal bowls to royal stew
+[00:31.50]There's no one quite as stirring as you!
+[00:36.00]He stirred the soup with valor true
+[00:40.50]He mixed the batter, through and through
+[00:45.00]No bowl too deep, no pot too wide
+[00:49.50]Sir Wiggleton stirred with knightly pride!`
+            },
+            simple: {
+                markdown: `[verse]
+Testing testing one two three
+Can you hear me singing free
+
+[chorus]
+La la la, this is my song
+Simple melody all day long`,
+                timestamp: `[00:00.00]Testing testing one two three
+[00:04.00]Can you hear me singing free
+[00:08.00]La la la, this is my song
+[00:12.00]Simple melody all day long`
+            }
+        };
+        
+        let currentFormat = 'timestamp'; // Default to timestamp for DiffRhythm
+        
+        function updateModelUI() {
+            const model = document.getElementById('model').value;
+            const modelInfo = document.getElementById('modelInfo');
+            const formatTabs = document.getElementById('formatTabs');
+            const inpaintInputs = document.getElementById('inpaintInputs');
+            
+            // Hide all model-specific inputs
+            inpaintInputs.style.display = 'none';
+            
+            // Update model info and show relevant inputs
+            switch(model) {
+                case 'fal-ai/yue':
+                    modelInfo.innerHTML = '<strong>YuE Model:</strong> Full song generation. <span style="color: #ffc107;">⚠️ REQUIRES: space-separated genres AND lyrics with [verse] and [chorus] sections.</span> May be slow or unavailable.';
+                    formatTabs.style.display = 'none';
+                    switchFormat('markdown');
+                    break;
+                    
+                case 'fal-ai/diffrhythm':
+                    modelInfo.innerHTML = '<strong>DiffRhythm:</strong> Fast generation (4-5s). <span style="color: #ffc107;">⚠️ REQUIRES timestamped lyrics [mm:ss.xx] for vocals!</span> Without timestamps = instrumental only.';
+                    formatTabs.style.display = 'none';
+                    switchFormat('timestamp');
+                    break;
+                    
+                case 'fal-ai/ace-step/audio-inpaint':
+                    modelInfo.innerHTML = '<strong>ACE-Step:</strong> Adds vocals to existing instrumental tracks. Upload your instrumental and specify where to add vocals.';
+                    inpaintInputs.style.display = 'block';
+                    formatTabs.style.display = 'flex';
+                    break;
+            }
+        }
+        
+        function switchFormat(format) {
+            currentFormat = format;
+            document.querySelectorAll('.lyrics-format').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            if (format === 'markdown') {
+                document.getElementById('markdownFormat').classList.add('active');
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            } else {
+                document.getElementById('timestampFormat').classList.add('active');
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+            }
+        }
+        
+        function loadTemplate(name) {
+            const template = templates[name] || templates.spoon;
+            const model = document.getElementById('model').value;
+            
+            if (model === 'fal-ai/diffrhythm') {
+                document.getElementById('lyricsTimestamp').value = template.timestamp;
+            } else {
+                document.getElementById('lyricsMarkdown').value = template.markdown;
+            }
+        }
+        
+        function addTimestamp(seconds) {
+            const textarea = document.getElementById('lyricsTimestamp');
+            const time = seconds.toFixed(2).padStart(5, '0');
+            textarea.value += `\n[00:${time}]`;
+            textarea.focus();
+        }
+        
+        function autoTimestamp() {
+            const textarea = document.getElementById('lyricsTimestamp');
+            const lines = textarea.value.split('\n').filter(line => line.trim());
+            let timestamp = 0;
+            const timestamped = lines.map(line => {
+                // Remove existing timestamp if any
+                const cleanLine = line.replace(/^\[\d{2}:\d{2}(?:\.\d{2})?\]/, '').trim();
+                const result = `[${formatTime(timestamp)}]${cleanLine}`;
+                timestamp += 4.5; // 4.5 seconds per line
+                return result;
+            });
+            textarea.value = timestamped.join('\n');
+        }
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = (seconds % 60).toFixed(2);
+            return `${mins.toString().padStart(2, '0')}:${secs.padStart(5, '0')}`;
+        }
+        
+        async function generateSinging() {
+            const model = document.getElementById('model').value;
+            const genres = document.getElementById('genres').value;
+            
+            let lyrics;
+            if (model === 'fal-ai/diffrhythm') {
+                lyrics = document.getElementById('lyricsTimestamp').value;
+            } else {
+                lyrics = currentFormat === 'timestamp' 
+                    ? document.getElementById('lyricsTimestamp').value
+                    : document.getElementById('lyricsMarkdown').value;
+            }
+            
+            const generateBtn = document.getElementById('generateBtn');
+            const status = document.getElementById('status');
+            
+            // Disable button
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<span class="loading-spinner"></span> Generating...';
+            
+            // Show status
+            status.style.display = 'block';
+            status.className = 'status loading';
+            status.innerHTML = '<span class="loading-spinner"></span> Preparing request...';
+            
+            try {
+                const requestBody = { model, lyrics, genres };
+                
+                // Handle ACE-Step specific inputs
+                if (model === 'fal-ai/ace-step/audio-inpaint') {
+                    // Implementation for file upload would go here
+                    throw new Error('ACE-Step file upload not implemented in this demo');
+                }
+                
+                // Call API
+                status.innerHTML = '<span class="loading-spinner"></span> Generating vocals... This may take 5-30 seconds...';
+                
+                const response = await fetch(`${API_URL}/fal/test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    status.className = 'status success';
+                    status.innerHTML = '✅ Generation successful! Vocals included!';
+                    displayResult(data);
+                } else {
+                    throw new Error(data.error || 'Generation failed');
+                }
+                
+            } catch (error) {
+                status.className = 'status error';
+                status.innerHTML = `❌ Error: ${error.message}`;
+                console.error('Generation error:', error);
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '🎤 Generate Singing with Vocals';
+            }
+        }
+        
+        function displayResult(data) {
+            const results = document.getElementById('results');
+            const content = document.getElementById('resultsContent');
+            
+            results.style.display = 'block';
+            
+            content.innerHTML = `
+                <div class="result-item">
+                    <h3>🎵 Generated Song with Vocals</h3>
+                    <audio controls class="audio-player" autoplay>
+                        <source src="${data.audioUrl}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                    <div style="margin-top: 15px; padding: 15px; background: #1a1a1a; border-radius: 8px;">
+                        <p><strong>Model:</strong> ${data.model}</p>
+                        <p><strong>Generation Time:</strong> ${(data.duration / 1000).toFixed(1)} seconds</p>
+                        <p><strong>Request ID:</strong> <code>${data.requestId}</code></p>
+                        <p><strong>Audio URL:</strong> <a href="${data.audioUrl}" target="_blank" style="color: #3a86ff;">Download</a></p>
+                        ${data.model === 'fal-ai/diffrhythm' ? '<p style="color: #06ffa5;">✅ Vocals generated using timestamped lyrics!</p>' : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Initialize
+        updateModelUI();
+    </script>
+</body>
+</html>

@@ -5,24 +5,29 @@ fal.config({
   credentials: process.env.FAL_KEY || 'YOUR_FAL_KEY_HERE'
 });
 
-async function testDiffRhythm() {
-  console.log('🎵 Testing DiffRhythm model directly...\n');
+async function testYuE() {
+  console.log('🎵 Testing YuE model for better vocals...\n');
   
   const lyrics = `[verse]
-Quick test song for debugging
-Let's see if this works faster
-[chorus]  
-Testing testing one two three
-Singing with technology`;
+In the kitchen of King Arthur's greatest knight
+Lived a spoon of silver, shining bright
+Sir Wiggleton was his noble name
+Destined for culinary fame!
+
+[chorus]
+Oh Wiggleton, brave Wiggleton
+Your handle gleams in morning sun
+From cereal bowls to royal stew
+There's no one quite as stirring as you!`;
 
   try {
-    console.log('Starting request...');
+    console.log('Starting YuE request...');
     const startTime = Date.now();
     
-    const result = await fal.subscribe('fal-ai/diffrhythm', {
+    const result = await fal.subscribe('fal-ai/yue', {
       input: {
         lyrics: lyrics,
-        style_prompt: 'pop, electronic, upbeat'  // DiffRhythm uses style_prompt, not genres
+        genres: 'epic, orchestral, heroic'  // YuE uses genres parameter
       },
       logs: true,
       onQueueUpdate: (update) => {
@@ -77,7 +82,7 @@ async function getApiKey() {
 async function main() {
   const apiKey = await getApiKey();
   fal.config({ credentials: apiKey });
-  await testDiffRhythm();
+  await testYuE();
 }
 
 main();

@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Box Vocal Karaoke - Sing with Zeldina!</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-card: #0f3460;
+            --accent-purple: #9d4edd;
+            --accent-pink: #ff006e;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --text-primary: #ffffff;
+            --text-secondary: #e4e4e7;
+            --text-muted: #a1a1aa;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            --success-color: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .song-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .song-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .song-card:hover {
+            border-color: var(--accent-purple);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(157, 78, 221, 0.3);
+        }
+
+        .song-card.selected {
+            border-color: var(--accent-pink);
+            background: rgba(255, 0, 110, 0.1);
+        }
+
+        .song-card h3 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .song-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .karaoke-player {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+            display: none;
+        }
+
+        .karaoke-player.active {
+            display: block;
+        }
+
+        .player-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .player-header h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .lyrics-display {
+            background: var(--bg-secondary);
+            padding: 30px;
+            border-radius: 12px;
+            min-height: 200px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .lyrics-line {
+            font-size: 1.8rem;
+            line-height: 2.5rem;
+            text-align: center;
+            margin: 10px 0;
+            opacity: 0.3;
+            transition: all 0.3s ease;
+        }
+
+        .lyrics-line.current {
+            opacity: 1;
+            color: var(--accent-pink);
+            transform: scale(1.1);
+            font-weight: 600;
+        }
+
+        .lyrics-line.next {
+            opacity: 0.6;
+        }
+
+        .singer-indicator {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .singer-indicator.player {
+            background: var(--accent-blue);
+        }
+
+        .singer-indicator.ai {
+            background: var(--accent-purple);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .control-btn {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent-purple);
+            color: var(--text-primary);
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-btn:hover {
+            background: var(--accent-purple);
+            transform: translateY(-2px);
+        }
+
+        .control-btn.primary {
+            background: var(--accent-purple);
+            border-color: var(--accent-purple);
+        }
+
+        .control-btn.primary:hover {
+            background: var(--accent-pink);
+            border-color: var(--accent-pink);
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-purple) 0%, var(--accent-pink) 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .score-display {
+            text-align: center;
+            margin-top: 30px;
+            display: none;
+        }
+
+        .score-display.active {
+            display: block;
+        }
+
+        .score {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+        }
+
+        .loading i {
+            font-size: 3rem;
+            color: var(--accent-purple);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .info-banner {
+            background: rgba(157, 78, 221, 0.1);
+            border: 1px solid var(--accent-purple);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .info-banner i {
+            color: var(--accent-purple);
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-music fa-2x" style="color: var(--accent-purple)"></i>
+                <h1>Music Box Vocal Karaoke</h1>
+            </div>
+        </header>
+
+        <div class="info-banner">
+            <i class="fas fa-microphone"></i>
+            Sing along with Zeldina! Your turn is highlighted in blue, Zeldina sings in purple.
+        </div>
+
+        <div class="song-selection" id="songSelection">
+            <div class="loading">
+                <i class="fas fa-spinner"></i>
+            </div>
+        </div>
+
+        <div class="karaoke-player" id="karaokePlayer">
+            <div class="player-header">
+                <h2 id="currentSongTitle">Select a Song</h2>
+                <p id="currentSongStyle"></p>
+            </div>
+
+            <div class="lyrics-display" id="lyricsDisplay">
+                <div class="singer-indicator" id="singerIndicator"></div>
+                <div id="lyricsContent"></div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="controls">
+                <button class="control-btn" id="prevBtn">
+                    <i class="fas fa-backward"></i> Previous
+                </button>
+                <button class="control-btn primary" id="playBtn">
+                    <i class="fas fa-play"></i> Play
+                </button>
+                <button class="control-btn" id="nextBtn">
+                    <i class="fas fa-forward"></i> Next
+                </button>
+                <button class="control-btn" id="restartBtn">
+                    <i class="fas fa-redo"></i> Restart
+                </button>
+            </div>
+
+            <div class="score-display" id="scoreDisplay">
+                <h3>Great Performance!</h3>
+                <div class="score" id="score">95%</div>
+            </div>
+        </div>
+
+        <audio id="audioPlayer" preload="auto"></audio>
+        <audio id="aiVoicePlayer" preload="auto"></audio>
+    </div>
+
+    <script>
+        class VocalKaraokeApp {
+            constructor() {
+                this.songs = [];
+                this.currentSong = null;
+                this.currentVerseIndex = 0;
+                this.currentLineIndex = 0;
+                this.isPlaying = false;
+                this.audioPlayer = document.getElementById('audioPlayer');
+                this.aiVoicePlayer = document.getElementById('aiVoicePlayer');
+                
+                this.init();
+            }
+
+            async init() {
+                await this.loadSongs();
+                this.setupEventListeners();
+            }
+
+            async loadSongs() {
+                try {
+                    const response = await fetch('karaoke-songs/catalog.json');
+                    const catalog = await response.json();
+                    this.songs = catalog.songs;
+                    this.renderSongSelection();
+                } catch (error) {
+                    console.error('Failed to load songs:', error);
+                }
+            }
+
+            renderSongSelection() {
+                const container = document.getElementById('songSelection');
+                container.innerHTML = '';
+
+                this.songs.forEach((song, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'song-card';
+                    card.innerHTML = `
+                        <h3>${song.title}</h3>
+                        <p><i class="fas fa-clock"></i> ${song.duration}s</p>
+                        <p><i class="fas fa-music"></i> ${song.style}</p>
+                        <p><i class="fas fa-microphone-alt"></i> Sing with Zeldina!</p>
+                    `;
+                    card.onclick = () => this.selectSong(index);
+                    container.appendChild(card);
+                });
+            }
+
+            async selectSong(index) {
+                // Remove previous selection
+                document.querySelectorAll('.song-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                document.querySelectorAll('.song-card')[index].classList.add('selected');
+
+                // Load full song data
+                const songInfo = this.songs[index];
+                try {
+                    const response = await fetch(`karaoke-songs/${songInfo.file}`);
+                    this.currentSong = await response.json();
+                    this.setupKaraokePlayer();
+                } catch (error) {
+                    console.error('Failed to load song:', error);
+                }
+            }
+
+            setupKaraokePlayer() {
+                const player = document.getElementById('karaokePlayer');
+                player.classList.add('active');
+
+                // Update player info
+                document.getElementById('currentSongTitle').textContent = this.currentSong.title;
+                document.getElementById('currentSongStyle').textContent = `Style: ${this.currentSong.style}`;
+
+                // Load audio
+                this.audioPlayer.src = this.currentSong.musicUrl;
+                this.aiVoicePlayer.src = this.currentSong.aiVoiceUrl;
+
+                // Reset state
+                this.currentVerseIndex = 0;
+                this.currentLineIndex = 0;
+                this.isPlaying = false;
+                document.getElementById('playBtn').innerHTML = '<i class="fas fa-play"></i> Play';
+                
+                // Display first verse
+                this.displayCurrentVerse();
+            }
+
+            displayCurrentVerse() {
+                if (!this.currentSong || this.currentVerseIndex >= this.currentSong.lyrics.verses.length) {
+                    return;
+                }
+
+                const verse = this.currentSong.lyrics.verses[this.currentVerseIndex];
+                const lyricsContent = document.getElementById('lyricsContent');
+                const singerIndicator = document.getElementById('singerIndicator');
+
+                // Update singer indicator
+                singerIndicator.className = `singer-indicator ${verse.singer}`;
+                singerIndicator.textContent = verse.singer === 'player' ? 'Your Turn!' : 'Zeldina Sings';
+
+                // Display lyrics
+                lyricsContent.innerHTML = verse.lines.map((line, index) => 
+                    `<div class="lyrics-line ${index === 0 ? 'current' : ''}" data-index="${index}">${line}</div>`
+                ).join('');
+            }
+
+            setupEventListeners() {
+                document.getElementById('playBtn').addEventListener('click', () => {
+                    this.togglePlay();
+                });
+
+                document.getElementById('restartBtn').addEventListener('click', () => {
+                    this.restart();
+                });
+
+                document.getElementById('prevBtn').addEventListener('click', () => {
+                    this.previousVerse();
+                });
+
+                document.getElementById('nextBtn').addEventListener('click', () => {
+                    this.nextVerse();
+                });
+
+                // Audio time update
+                this.audioPlayer.addEventListener('timeupdate', () => {
+                    this.updateProgress();
+                    this.checkVerseTransition();
+                });
+
+                this.audioPlayer.addEventListener('ended', () => {
+                    this.onSongEnd();
+                });
+            }
+
+            togglePlay() {
+                if (this.isPlaying) {
+                    this.pause();
+                } else {
+                    this.play();
+                }
+            }
+
+            play() {
+                if (!this.currentSong) return;
+
+                this.audioPlayer.play();
+                this.isPlaying = true;
+                document.getElementById('playBtn').innerHTML = '<i class="fas fa-pause"></i> Pause';
+                
+                // Start the karaoke synchronization
+                this.startKaraoke();
+            }
+
+            pause() {
+                this.audioPlayer.pause();
+                this.aiVoicePlayer.pause();
+                this.isPlaying = false;
+                document.getElementById('playBtn').innerHTML = '<i class="fas fa-play"></i> Play';
+            }
+
+            restart() {
+                this.audioPlayer.currentTime = 0;
+                this.aiVoicePlayer.currentTime = 0;
+                this.currentVerseIndex = 0;
+                this.currentLineIndex = 0;
+                this.displayCurrentVerse();
+                this.updateProgress();
+                
+                if (this.isPlaying) {
+                    this.play();
+                }
+            }
+
+            previousVerse() {
+                if (this.currentVerseIndex > 0) {
+                    this.currentVerseIndex--;
+                    this.currentLineIndex = 0;
+                    this.displayCurrentVerse();
+                    
+                    // Seek to verse start time
+                    const verse = this.currentSong.lyrics.verses[this.currentVerseIndex];
+                    this.audioPlayer.currentTime = verse.startTime;
+                }
+            }
+
+            nextVerse() {
+                if (this.currentVerseIndex < this.currentSong.lyrics.verses.length - 1) {
+                    this.currentVerseIndex++;
+                    this.currentLineIndex = 0;
+                    this.displayCurrentVerse();
+                    
+                    // Seek to verse start time
+                    const verse = this.currentSong.lyrics.verses[this.currentVerseIndex];
+                    this.audioPlayer.currentTime = verse.startTime;
+                }
+            }
+
+            updateProgress() {
+                const progress = (this.audioPlayer.currentTime / this.audioPlayer.duration) * 100;
+                document.getElementById('progressFill').style.width = `${progress}%`;
+            }
+
+            checkVerseTransition() {
+                if (!this.currentSong || !this.isPlaying) return;
+
+                const currentTime = this.audioPlayer.currentTime;
+                const verses = this.currentSong.lyrics.verses;
+
+                // Find which verse should be active
+                for (let i = 0; i < verses.length; i++) {
+                    const verse = verses[i];
+                    const verseEnd = verse.startTime + verse.duration;
+
+                    if (currentTime >= verse.startTime && currentTime < verseEnd) {
+                        if (i !== this.currentVerseIndex) {
+                            this.currentVerseIndex = i;
+                            this.currentLineIndex = 0;
+                            this.displayCurrentVerse();
+                        }
+
+                        // Update current line highlighting
+                        this.updateCurrentLine(currentTime - verse.startTime, verse.duration);
+                        break;
+                    }
+                }
+            }
+
+            updateCurrentLine(verseTime, verseDuration) {
+                const verse = this.currentSong.lyrics.verses[this.currentVerseIndex];
+                const lineCount = verse.lines.length;
+                const lineIndex = Math.floor((verseTime / verseDuration) * lineCount);
+
+                if (lineIndex !== this.currentLineIndex && lineIndex < lineCount) {
+                    this.currentLineIndex = lineIndex;
+                    
+                    // Update line highlighting
+                    document.querySelectorAll('.lyrics-line').forEach((line, index) => {
+                        line.classList.remove('current', 'next');
+                        if (index === lineIndex) {
+                            line.classList.add('current');
+                        } else if (index === lineIndex + 1) {
+                            line.classList.add('next');
+                        }
+                    });
+                }
+            }
+
+            startKaraoke() {
+                // Since both tracks are the same (with vocals), we just need to sync the display
+                // In a real implementation, you'd have separate backing track and vocal track
+                // For now, we'll just play the vocal version and sync the lyrics
+            }
+
+            onSongEnd() {
+                this.isPlaying = false;
+                document.getElementById('playBtn').innerHTML = '<i class="fas fa-play"></i> Play';
+                
+                // Show score
+                const scoreDisplay = document.getElementById('scoreDisplay');
+                scoreDisplay.classList.add('active');
+                
+                // Calculate a mock score (in real app, this would be based on actual singing)
+                const score = Math.floor(Math.random() * 20) + 80; // 80-100
+                document.getElementById('score').textContent = `${score}%`;
+            }
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            new VocalKaraokeApp();
+        });
+    </script>
+</body>
+</html>

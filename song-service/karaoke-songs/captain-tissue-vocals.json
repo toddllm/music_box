@@ -1,0 +1,54 @@
+{
+  "id": "captain-tissue-vocals",
+  "title": "The Incredible Journey of Captain Tissue (With Vocals)",
+  "genres": "superhero march triumphant male vocal action epic",
+  "musicUrl": "https://v3.fal.media/files/rabbit/Y7FUM_S_PR428s0a-tl2p_output.wav",
+  "aiVoiceUrl": "https://v3.fal.media/files/rabbit/Y7FUM_S_PR428s0a-tl2p_output.wav",
+  "lyrics": {
+    "title": "The Incredible Journey of Captain Tissue (With Vocals)",
+    "verses": [
+      {
+        "type": "verse",
+        "number": 1,
+        "singer": "player",
+        "lines": [
+          "In a bathroom cabinet high",
+          "Where the cleaning supplies lie",
+          "Lived a tissue box so brave",
+          "Captain Tissue, soft and suave!"
+        ],
+        "startTime": 0,
+        "duration": 18
+      },
+      {
+        "type": "chorus",
+        "number": 1,
+        "singer": "ai",
+        "lines": [
+          "Soft and strong, white and true"
+        ],
+        "startTime": 18,
+        "duration": 4.5
+      },
+      {
+        "type": "verse",
+        "number": 3,
+        "singer": "player",
+        "lines": [
+          "Captain Tissue's there for you!",
+          "Pull one out, then pull some more",
+          "Comfort knocking at your door!"
+        ],
+        "startTime": 22.5,
+        "duration": 9
+      }
+    ],
+    "totalDuration": 32
+  },
+  "prompt": "The Incredible Journey of Captain Tissue (With Vocals)",
+  "style": "superhero",
+  "duration": 6,
+  "generatedAt": "2025-07-08T16:42:55.749Z",
+  "hasVocals": true,
+  "voiceReference": "Zeldina"
+}

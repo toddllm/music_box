@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Music Box - All Songs With Vocals! 🎤</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0a0a0a;
+            color: #e0e0e0;
+        }
+        h1 {
+            color: #ff006e;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .hero {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border-radius: 20px;
+            border: 2px solid #ff006e;
+        }
+        .hero h2 {
+            color: #06ffa5;
+            margin: 10px 0;
+        }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        .stat {
+            text-align: center;
+            padding: 15px 25px;
+            background: #333;
+            border-radius: 10px;
+        }
+        .stat-value {
+            font-size: 2em;
+            color: #3a86ff;
+            font-weight: bold;
+        }
+        .stat-label {
+            color: #888;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .songs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .song-card {
+            background: #2a2a2a;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #3a3a3a;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .song-card:hover {
+            transform: translateY(-5px);
+            border-color: #ff006e;
+            box-shadow: 0 10px 30px rgba(255, 0, 110, 0.3);
+        }
+        .song-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff006e, #3a86ff, #06ffa5);
+            animation: colorWave 3s ease-in-out infinite;
+        }
+        @keyframes colorWave {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+        .song-number {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            background: #ff006e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .song-title {
+            color: #3a86ff;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            padding-right: 50px;
+            line-height: 1.3;
+        }
+        .song-genre {
+            color: #888;
+            font-size: 0.9em;
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+        .lyrics-preview {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 0.85em;
+            color: #b0b0b0;
+            border-left: 3px solid #ff006e;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        audio {
+            width: 100%;
+            margin: 15px 0;
+            border-radius: 6px;
+        }
+        .metadata {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #3a3a3a;
+        }
+        .duration {
+            background: rgba(6, 255, 165, 0.2);
+            color: #06ffa5;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        .download-btn {
+            background: #3a86ff;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .download-btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+        .timestamp-toggle {
+            background: #333;
+            border: 1px solid #555;
+            color: #aaa;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+        .timestamp-toggle:hover {
+            background: #444;
+            color: #fff;
+        }
+        .timestamps {
+            display: none;
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 0.8em;
+            color: #888;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .timestamps.show {
+            display: block;
+        }
+        .test-links {
+            text-align: center;
+            margin-top: 40px;
+            padding: 30px;
+            background: #1a1a1a;
+            border-radius: 15px;
+        }
+        .test-links h3 {
+            color: #ff006e;
+            margin-bottom: 20px;
+        }
+        .link-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .link-card {
+            background: #2a2a2a;
+            padding: 20px 30px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #3a3a3a;
+            transition: all 0.3s;
+        }
+        .link-card:hover {
+            border-color: #3a86ff;
+            transform: translateY(-3px);
+        }
+        .link-card a {
+            color: #3a86ff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .link-card p {
+            color: #888;
+            font-size: 0.9em;
+            margin-top: 8px;
+        }
+        .success-badge {
+            background: #06ffa5;
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        code {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>🎵 Music Box Vocal Generation Complete! 🎤</h1>
+        <h2>All 5 Songs Successfully Generated with DiffRhythm + Timestamped Lyrics</h2>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value">5/5</div>
+                <div class="stat-label">Songs Generated</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">4.7s</div>
+                <div class="stat-label">Avg Generation</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">100%</div>
+                <div class="stat-label">With Vocals!</div>
+            </div>
+        </div>
+        <p style="color: #06ffa5; font-size: 1.1em;">✨ Key Discovery: DiffRhythm requires timestamped lyrics [mm:ss.xx] for vocal generation!</p>
+    </div>
+
+    <div class="songs-grid">
+        <div class="song-card">
+            <span class="song-number">1</span>
+            <h3 class="song-title">The Epic Ballad of Sir Wiggleton the Magnificent Spoon</h3>
+            <p class="song-genre">epic orchestral heroic male vocal anthem</p>
+            <div class="lyrics-preview">In the kitchen of King Arthur's greatest knight
+Lived a spoon of silver, shining bright
+Sir Wiggleton was his noble name
+Destined for culinary fame!</div>
+            <audio controls>
+                <source src="https://v3.fal.media/files/monkey/C2_gjTrYLMk1hz9KF5vN2_output.wav" type="audio/wav">
+            </audio>
+            <div class="metadata">
+                <span class="duration">⚡ 4.7s</span>
+                <a href="https://v3.fal.media/files/monkey/C2_gjTrYLMk1hz9KF5vN2_output.wav" class="download-btn" target="_blank">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 2a.5.5 0 0 1 .5.5v11a.5.5 0 0 1-1 0v-11A.5.5 0 0 1 8 2z"/>
+                        <path d="M4.146 9.146a.5.5 0 0 1 .708 0L8 12.293l3.146-3.147a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                    Download
+                </a>
+            </div>
+            <button class="timestamp-toggle" onclick="toggleTimestamps(1)">Show Timestamps</button>
+            <div class="timestamps" id="timestamps-1">[00:00.00]In the kitchen of King Arthur's greatest knight
+[00:04.50]Lived a spoon of silver, shining bright
+[00:09.00]Sir Wiggleton was his noble name
+[00:13.50]Destined for culinary fame!
+[00:18.00]Oh Wiggleton, brave Wiggleton
+[00:22.50]Your handle gleams in morning sun
+[00:27.00]From cereal bowls to royal stew
+[00:31.50]There's no one quite as stirring as you!
+[00:36.00]He stirred the soup with valor true
+[00:40.50]He mixed the batter, through and through
+[00:45.00]No bowl too deep, no pot too wide
+[00:49.50]Sir Wiggleton stirred with knightly pride!</div>
+        </div>
+
+        <div class="song-card">
+            <span class="song-number">2</span>
+            <h3 class="song-title">The Tragic Romance of the Lonely Shoelace</h3>
+            <p class="song-genre">romantic ballad melancholy female vocal emotional</p>
+            <div class="lyrics-preview">In a sneaker dark and deep
+Where dirty socks do sometimes sleep
+There lived a lace of brilliant white
+Who dreamed of love both day and night</div>
+            <audio controls>
+                <source src="https://v3.fal.media/files/panda/1G4IiNRTaU6KA6Llh9EIp_output.wav" type="audio/wav">
+            </audio>
+            <div class="metadata">
+                <span class="duration">⚡ 4.5s</span>
+                <a href="https://v3.fal.media/files/panda/1G4IiNRTaU6KA6Llh9EIp_output.wav" class="download-btn" target="_blank">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 2a.5.5 0 0 1 .5.5v11a.5.5 0 0 1-1 0v-11A.5.5 0 0 1 8 2z"/>
+                        <path d="M4.146 9.146a.5.5 0 0 1 .708 0L8 12.293l3.146-3.147a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                    Download
+                </a>
+            </div>
+            <button class="timestamp-toggle" onclick="toggleTimestamps(2)">Show Timestamps</button>
+            <div class="timestamps" id="timestamps-2">[00:00.00]In a sneaker dark and deep
+[00:04.50]Where dirty socks do sometimes sleep
+[00:09.00]There lived a lace of brilliant white
+[00:13.50]Who dreamed of love both day and night
+[00:18.00]Tie me up, tie me down
+[00:22.50]I'm the loneliest lace in town
+[00:27.00]Through the eyelets I must go
+[00:31.50]But love's a thing I'll never know</div>
+        </div>
+
+        <div class="song-card">
+            <span class="song-number">3</span>
+            <h3 class="song-title">The Mysterious Case of the Singing Sandwich</h3>
+            <p class="song-genre">jazz noir mystery detective male vocal swing</p>
+            <div class="lyrics-preview">It was a Tuesday, dark and cold
+When the strangest tale was told
+In Delilah's Deli down the street
+Something happened most elite</div>
+            <audio controls>
+                <source src="https://v3.fal.media/files/panda/2PidIN_smcq7wJUKS1_Sv_output.wav" type="audio/wav">
+            </audio>
+            <div class="metadata">
+                <span class="duration">⚡ 4.1s</span>
+                <a href="https://v3.fal.media/files/panda/2PidIN_smcq7wJUKS1_Sv_output.wav" class="download-btn" target="_blank">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 2a.5.5 0 0 1 .5.5v11a.5.5 0 0 1-1 0v-11A.5.5 0 0 1 8 2z"/>
+                        <path d="M4.146 9.146a.5.5 0 0 1 .708 0L8 12.293l3.146-3.147a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                    Download
+                </a>
+            </div>
+            <button class="timestamp-toggle" onclick="toggleTimestamps(3)">Show Timestamps</button>
+            <div class="timestamps" id="timestamps-3">[00:00.00]It was a Tuesday, dark and cold
+[00:04.50]When the strangest tale was told
+[00:09.00]In Delilah's Deli down the street
+[00:13.50]Something happened most elite
+[00:18.00]Who made the sandwich sing?
+[00:22.50]What a most peculiar thing!
+[00:27.00]Bread and meat in harmony
+[00:31.50]Singing in sweet melody!</div>
+        </div>
+
+        <div class="song-card">
+            <span class="song-number">4</span>
+            <h3 class="song-title">The Incredible Journey of Captain Tissue</h3>
+            <p class="song-genre">superhero march triumphant male vocal action epic</p>
+            <div class="lyrics-preview">In a bathroom cabinet high
+Where the cleaning supplies lie
+Lived a tissue box so brave
+Captain Tissue, soft and suave!</div>
+            <audio controls>
+                <source src="https://v3.fal.media/files/rabbit/Y7FUM_S_PR428s0a-tl2p_output.wav" type="audio/wav">
+            </audio>
+            <div class="metadata">
+                <span class="duration">⚡ 5.4s</span>
+                <a href="https://v3.fal.media/files/rabbit/Y7FUM_S_PR428s0a-tl2p_output.wav" class="download-btn" target="_blank">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 2a.5.5 0 0 1 .5.5v11a.5.5 0 0 1-1 0v-11A.5.5 0 0 1 8 2z"/>
+                        <path d="M4.146 9.146a.5.5 0 0 1 .708 0L8 12.293l3.146-3.147a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                    Download
+                </a>
+            </div>
+            <button class="timestamp-toggle" onclick="toggleTimestamps(4)">Show Timestamps</button>
+            <div class="timestamps" id="timestamps-4">[00:00.00]In a bathroom cabinet high
+[00:04.50]Where the cleaning supplies lie
+[00:09.00]Lived a tissue box so brave
+[00:13.50]Captain Tissue, soft and suave!
+[00:18.00]Soft and strong, white and true
+[00:22.50]Captain Tissue's there for you!
+[00:27.00]Pull one out, then pull some more
+[00:31.50]Comfort knocking at your door!</div>
+        </div>
+
+        <div class="song-card">
+            <span class="song-number">5</span>
+            <h3 class="song-title">The Great Pumpkin's Tummy Symphony</h3>
+            <p class="song-genre">whimsical bouncy magical children vocal fun</p>
+            <div class="lyrics-preview">In the pumpkin patch so grand and wide
+Lives a pumpkin with enormous pride
+His tummy's big, his tummy's round
+The biggest belly that can be found!</div>
+            <audio controls>
+                <source src="https://v3.fal.media/files/koala/0tIXP7FdX7SDs3Xf3l21S_output.wav" type="audio/wav">
+            </audio>
+            <div class="metadata">
+                <span class="duration">⚡ 4.7s</span>
+                <a href="https://v3.fal.media/files/koala/0tIXP7FdX7SDs3Xf3l21S_output.wav" class="download-btn" target="_blank">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 2a.5.5 0 0 1 .5.5v11a.5.5 0 0 1-1 0v-11A.5.5 0 0 1 8 2z"/>
+                        <path d="M4.146 9.146a.5.5 0 0 1 .708 0L8 12.293l3.146-3.147a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                    Download
+                </a>
+            </div>
+            <button class="timestamp-toggle" onclick="toggleTimestamps(5)">Show Timestamps</button>
+            <div class="timestamps" id="timestamps-5">[00:00.00]In the pumpkin patch so grand and wide
+[00:04.50]Lives a pumpkin with enormous pride
+[00:09.00]His tummy's big, his tummy's round
+[00:13.50]The biggest belly that can be found!
+[00:18.00]I believe! I believe!
+[00:22.50]In the pumpkin's tummy dream!
+[00:27.00]Bum bum bum tum tum tum!
+[00:31.50]Greatest tummy under sun!</div>
+        </div>
+    </div>
+
+    <div class="test-links">
+        <h3>🚀 Test Pages & Tools</h3>
+        <div class="link-grid">
+            <div class="link-card">
+                <a href="/fal-singing-enhanced.html">Enhanced Singing Test</a>
+                <p>Generate new songs with timestamps</p>
+            </div>
+            <div class="link-card">
+                <a href="/karaoke.html">Karaoke Game</a>
+                <p>Play the Music Box game</p>
+            </div>
+            <div class="link-card">
+                <a href="/fal-test-results-v2.html">Original Test Results</a>
+                <p>First generation attempts</p>
+            </div>
+        </div>
+        <div style="margin-top: 30px; padding: 20px; background: #1a1a1a; border-radius: 10px;">
+            <h4 style="color: #ff006e; margin-bottom: 15px;">📝 Technical Details</h4>
+            <p><strong>Model:</strong> <code>fal-ai/diffrhythm</code></p>
+            <p><strong>Key Requirement:</strong> Timestamped lyrics format <code>[mm:ss.xx]</code></p>
+            <p><strong>API Endpoint:</strong> <code>https://pd08901pf7.execute-api.us-east-1.amazonaws.com/prod/fal/test</code></p>
+            <p><strong>Generation Date:</strong> ${new Date().toLocaleString()}</p>
+            <p style="margin-top: 15px; color: #06ffa5;">✅ All songs include clear vocals with the silly lyrics!</p>
+        </div>
+    </div>
+
+    <script>
+        function toggleTimestamps(songNum) {
+            const elem = document.getElementById(`timestamps-${songNum}`);
+            elem.classList.toggle('show');
+            const btn = elem.previousElementSibling;
+            btn.textContent = elem.classList.contains('show') ? 'Hide Timestamps' : 'Show Timestamps';
+        }
+        
+        // Add some interactivity
+        document.querySelectorAll('audio').forEach((audio, index) => {
+            audio.addEventListener('play', () => {
+                console.log(`Playing song ${index + 1}`);
+            });
+        });
+    </script>
+</body>
+</html>

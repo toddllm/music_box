@@ -1,0 +1,54 @@
+{
+  "id": "shoelace-romance-vocals",
+  "title": "The Tragic Romance of the Lonely Shoelace (With Vocals)",
+  "genres": "romantic ballad melancholy female vocal emotional",
+  "musicUrl": "https://v3.fal.media/files/panda/1G4IiNRTaU6KA6Llh9EIp_output.wav",
+  "aiVoiceUrl": "https://v3.fal.media/files/panda/1G4IiNRTaU6KA6Llh9EIp_output.wav",
+  "lyrics": {
+    "title": "The Tragic Romance of the Lonely Shoelace (With Vocals)",
+    "verses": [
+      {
+        "type": "verse",
+        "number": 1,
+        "singer": "player",
+        "lines": [
+          "In a sneaker dark and deep",
+          "Where dirty socks do sometimes sleep",
+          "There lived a lace of brilliant white",
+          "Who dreamed of love both day and night"
+        ],
+        "startTime": 0,
+        "duration": 18
+      },
+      {
+        "type": "chorus",
+        "number": 1,
+        "singer": "ai",
+        "lines": [
+          "Tie me up, tie me down"
+        ],
+        "startTime": 18,
+        "duration": 4.5
+      },
+      {
+        "type": "verse",
+        "number": 3,
+        "singer": "player",
+        "lines": [
+          "I'm the loneliest lace in town",
+          "Through the eyelets I must go",
+          "But love's a thing I'll never know"
+        ],
+        "startTime": 22.5,
+        "duration": 9
+      }
+    ],
+    "totalDuration": 32
+  },
+  "prompt": "The Tragic Romance of the Lonely Shoelace (With Vocals)",
+  "style": "romantic",
+  "duration": 5,
+  "generatedAt": "2025-07-08T16:42:42.095Z",
+  "hasVocals": true,
+  "voiceReference": "Zeldina"
+}

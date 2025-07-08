@@ -1,0 +1,54 @@
+{
+  "id": "pumpkin-tummy-vocals",
+  "title": "The Great Pumpkin's Tummy Symphony (With Vocals)",
+  "genres": "whimsical bouncy magical children vocal fun",
+  "musicUrl": "https://v3.fal.media/files/koala/0tIXP7FdX7SDs3Xf3l21S_output.wav",
+  "aiVoiceUrl": "https://v3.fal.media/files/koala/0tIXP7FdX7SDs3Xf3l21S_output.wav",
+  "lyrics": {
+    "title": "The Great Pumpkin's Tummy Symphony (With Vocals)",
+    "verses": [
+      {
+        "type": "verse",
+        "number": 1,
+        "singer": "player",
+        "lines": [
+          "In the pumpkin patch so grand and wide",
+          "Lives a pumpkin with enormous pride",
+          "His tummy's big, his tummy's round",
+          "The biggest belly that can be found!"
+        ],
+        "startTime": 0,
+        "duration": 18
+      },
+      {
+        "type": "chorus",
+        "number": 1,
+        "singer": "ai",
+        "lines": [
+          "I believe! I believe!"
+        ],
+        "startTime": 18,
+        "duration": 4.5
+      },
+      {
+        "type": "verse",
+        "number": 3,
+        "singer": "player",
+        "lines": [
+          "In the pumpkin's tummy dream!",
+          "Bum bum bum tum tum tum!",
+          "Greatest tummy under sun!"
+        ],
+        "startTime": 22.5,
+        "duration": 9
+      }
+    ],
+    "totalDuration": 32
+  },
+  "prompt": "The Great Pumpkin's Tummy Symphony (With Vocals)",
+  "style": "whimsical",
+  "duration": 5,
+  "generatedAt": "2025-07-08T16:43:02.789Z",
+  "hasVocals": true,
+  "voiceReference": "Zeldina"
+}

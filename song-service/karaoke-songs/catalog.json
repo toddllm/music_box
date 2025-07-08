@@ -1,0 +1,47 @@
+{
+  "generatedAt": "2025-07-08T18:03:00.668Z",
+  "totalSongs": 5,
+  "voiceReference": "Zeldina",
+  "songs": [
+    {
+      "id": "spoon-ballad-vocals",
+      "title": "The Epic Ballad of Sir Wiggleton (With Vocals)",
+      "genres": "epic orchestral heroic male vocal anthem",
+      "duration": 5,
+      "musicUrl": "https://v3.fal.media/files/monkey/C2_gjTrYLMk1hz9KF5vN2_output.wav",
+      "hasVocals": true
+    },
+    {
+      "id": "shoelace-romance-vocals",
+      "title": "The Tragic Romance of the Lonely Shoelace (With Vocals)",
+      "genres": "romantic ballad melancholy female vocal emotional",
+      "duration": 5,
+      "musicUrl": "https://v3.fal.media/files/panda/1G4IiNRTaU6KA6Llh9EIp_output.wav",
+      "hasVocals": true
+    },
+    {
+      "id": "sandwich-mystery-vocals",
+      "title": "The Mysterious Case of the Singing Sandwich (With Vocals)",
+      "genres": "jazz noir mystery detective male vocal swing",
+      "duration": 5,
+      "musicUrl": "https://v3.fal.media/files/panda/2PidIN_smcq7wJUKS1_Sv_output.wav",
+      "hasVocals": true
+    },
+    {
+      "id": "captain-tissue-vocals",
+      "title": "The Incredible Journey of Captain Tissue (With Vocals)",
+      "genres": "superhero march triumphant male vocal action epic",
+      "duration": 6,
+      "musicUrl": "https://v3.fal.media/files/rabbit/Y7FUM_S_PR428s0a-tl2p_output.wav",
+      "hasVocals": true
+    },
+    {
+      "id": "pumpkin-tummy-vocals",
+      "title": "The Great Pumpkin's Tummy Symphony (With Vocals)",
+      "genres": "whimsical bouncy magical children vocal fun",
+      "duration": 5,
+      "musicUrl": "https://v3.fal.media/files/koala/0tIXP7FdX7SDs3Xf3l21S_output.wav",
+      "hasVocals": true
+    }
+  ]
+}

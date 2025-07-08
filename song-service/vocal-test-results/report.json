@@ -1,0 +1,64 @@
+{
+  "testDate": "2025-07-08T16:43:04.792Z",
+  "totalSongs": 5,
+  "successful": 5,
+  "failed": 0,
+  "averageTime": "4.7",
+  "songs": [
+    {
+      "id": "spoon-ballad-vocals",
+      "title": "The Epic Ballad of Sir Wiggleton (With Vocals)",
+      "genres": "epic orchestral heroic male vocal anthem",
+      "lyricsMarkdown": "[verse]\nIn the kitchen of King Arthur's greatest knight\nLived a spoon of silver, shining bright\nSir Wiggleton was his noble name\nDestined for culinary fame!\n\n[chorus]\nOh Wiggleton, brave Wiggleton\nYour handle gleams in morning sun\nFrom cereal bowls to royal stew\nThere's no one quite as stirring as you!\n\n[verse]\nHe stirred the soup with valor true\nHe mixed the batter, through and through\nNo bowl too deep, no pot too wide\nSir Wiggleton stirred with knightly pride!",
+      "audioUrl": "https://v3.fal.media/files/monkey/C2_gjTrYLMk1hz9KF5vN2_output.wav",
+      "requestId": "5b1be4f8-deea-4b50-999d-4762ef4d323f",
+      "generatedAt": "2025-07-08T16:42:35.468Z",
+      "duration": 4679,
+      "timestampedLyrics": "[00:00.00]In the kitchen of King Arthur's greatest knight\n[00:04.50]Lived a spoon of silver, shining bright\n[00:09.00]Sir Wiggleton was his noble name\n[00:13.50]Destined for culinary fame!\n[00:18.00]Oh Wiggleton, brave Wiggleton\n[00:22.50]Your handle gleams in morning sun\n[00:27.00]From cereal bowls to royal stew\n[00:31.50]There's no one quite as stirring as you!\n[00:36.00]He stirred the soup with valor true\n[00:40.50]He mixed the batter, through and through\n[00:45.00]No bowl too deep, no pot too wide\n[00:49.50]Sir Wiggleton stirred with knightly pride!"
+    },
+    {
+      "id": "shoelace-romance-vocals",
+      "title": "The Tragic Romance of the Lonely Shoelace (With Vocals)",
+      "genres": "romantic ballad melancholy female vocal emotional",
+      "lyricsMarkdown": "[verse]\nIn a sneaker dark and deep\nWhere dirty socks do sometimes sleep\nThere lived a lace of brilliant white\nWho dreamed of love both day and night\n\n[chorus]\nTie me up, tie me down\nI'm the loneliest lace in town\nThrough the eyelets I must go\nBut love's a thing I'll never know",
+      "audioUrl": "https://v3.fal.media/files/panda/1G4IiNRTaU6KA6Llh9EIp_output.wav",
+      "requestId": "e2ca6308-dd24-47ee-8508-39d6325541f8",
+      "generatedAt": "2025-07-08T16:42:42.095Z",
+      "duration": 4506,
+      "timestampedLyrics": "[00:00.00]In a sneaker dark and deep\n[00:04.50]Where dirty socks do sometimes sleep\n[00:09.00]There lived a lace of brilliant white\n[00:13.50]Who dreamed of love both day and night\n[00:18.00]Tie me up, tie me down\n[00:22.50]I'm the loneliest lace in town\n[00:27.00]Through the eyelets I must go\n[00:31.50]But love's a thing I'll never know"
+    },
+    {
+      "id": "sandwich-mystery-vocals",
+      "title": "The Mysterious Case of the Singing Sandwich (With Vocals)",
+      "genres": "jazz noir mystery detective male vocal swing",
+      "lyricsMarkdown": "[verse]\nIt was a Tuesday, dark and cold\nWhen the strangest tale was told\nIn Delilah's Deli down the street\nSomething happened most elite\n\n[chorus]\nWho made the sandwich sing?\nWhat a most peculiar thing!\nBread and meat in harmony\nSinging in sweet melody!",
+      "audioUrl": "https://v3.fal.media/files/panda/2PidIN_smcq7wJUKS1_Sv_output.wav",
+      "requestId": "0248cc48-9c62-4ea4-922d-ba13410f14dc",
+      "generatedAt": "2025-07-08T16:42:48.313Z",
+      "duration": 4140,
+      "timestampedLyrics": "[00:00.00]It was a Tuesday, dark and cold\n[00:04.50]When the strangest tale was told\n[00:09.00]In Delilah's Deli down the street\n[00:13.50]Something happened most elite\n[00:18.00]Who made the sandwich sing?\n[00:22.50]What a most peculiar thing!\n[00:27.00]Bread and meat in harmony\n[00:31.50]Singing in sweet melody!"
+    },
+    {
+      "id": "captain-tissue-vocals",
+      "title": "The Incredible Journey of Captain Tissue (With Vocals)",
+      "genres": "superhero march triumphant male vocal action epic",
+      "lyricsMarkdown": "[verse]\nIn a bathroom cabinet high\nWhere the cleaning supplies lie\nLived a tissue box so brave\nCaptain Tissue, soft and suave!\n\n[chorus]\nSoft and strong, white and true\nCaptain Tissue's there for you!\nPull one out, then pull some more\nComfort knocking at your door!",
+      "audioUrl": "https://v3.fal.media/files/rabbit/Y7FUM_S_PR428s0a-tl2p_output.wav",
+      "requestId": "e13c3762-876a-4192-af51-0d5d0a2daf35",
+      "generatedAt": "2025-07-08T16:42:55.749Z",
+      "duration": 5351,
+      "timestampedLyrics": "[00:00.00]In a bathroom cabinet high\n[00:04.50]Where the cleaning supplies lie\n[00:09.00]Lived a tissue box so brave\n[00:13.50]Captain Tissue, soft and suave!\n[00:18.00]Soft and strong, white and true\n[00:22.50]Captain Tissue's there for you!\n[00:27.00]Pull one out, then pull some more\n[00:31.50]Comfort knocking at your door!"
+    },
+    {
+      "id": "pumpkin-tummy-vocals",
+      "title": "The Great Pumpkin's Tummy Symphony (With Vocals)",
+      "genres": "whimsical bouncy magical children vocal fun",
+      "lyricsMarkdown": "[verse]\nIn the pumpkin patch so grand and wide\nLives a pumpkin with enormous pride\nHis tummy's big, his tummy's round\nThe biggest belly that can be found!\n\n[chorus]\nI believe! I believe!\nIn the pumpkin's tummy dream!\nBum bum bum tum tum tum!\nGreatest tummy under sun!",
+      "audioUrl": "https://v3.fal.media/files/koala/0tIXP7FdX7SDs3Xf3l21S_output.wav",
+      "requestId": "7a4964f0-52c2-4362-9d7a-3ef1ecdc1fcb",
+      "generatedAt": "2025-07-08T16:43:02.789Z",
+      "duration": 4704,
+      "timestampedLyrics": "[00:00.00]In the pumpkin patch so grand and wide\n[00:04.50]Lives a pumpkin with enormous pride\n[00:09.00]His tummy's big, his tummy's round\n[00:13.50]The biggest belly that can be found!\n[00:18.00]I believe! I believe!\n[00:22.50]In the pumpkin's tummy dream!\n[00:27.00]Bum bum bum tum tum tum!\n[00:31.50]Greatest tummy under sun!"
+    }
+  ]
+}

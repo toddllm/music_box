@@ -1,0 +1,54 @@
+{
+  "id": "sandwich-mystery-vocals",
+  "title": "The Mysterious Case of the Singing Sandwich (With Vocals)",
+  "genres": "jazz noir mystery detective male vocal swing",
+  "musicUrl": "https://v3.fal.media/files/panda/2PidIN_smcq7wJUKS1_Sv_output.wav",
+  "aiVoiceUrl": "https://v3.fal.media/files/panda/2PidIN_smcq7wJUKS1_Sv_output.wav",
+  "lyrics": {
+    "title": "The Mysterious Case of the Singing Sandwich (With Vocals)",
+    "verses": [
+      {
+        "type": "verse",
+        "number": 1,
+        "singer": "player",
+        "lines": [
+          "It was a Tuesday, dark and cold",
+          "When the strangest tale was told",
+          "In Delilah's Deli down the street",
+          "Something happened most elite"
+        ],
+        "startTime": 0,
+        "duration": 18
+      },
+      {
+        "type": "chorus",
+        "number": 1,
+        "singer": "ai",
+        "lines": [
+          "Who made the sandwich sing?"
+        ],
+        "startTime": 18,
+        "duration": 4.5
+      },
+      {
+        "type": "verse",
+        "number": 3,
+        "singer": "player",
+        "lines": [
+          "What a most peculiar thing!",
+          "Bread and meat in harmony",
+          "Singing in sweet melody!"
+        ],
+        "startTime": 22.5,
+        "duration": 9
+      }
+    ],
+    "totalDuration": 32
+  },
+  "prompt": "The Mysterious Case of the Singing Sandwich (With Vocals)",
+  "style": "jazz",
+  "duration": 5,
+  "generatedAt": "2025-07-08T16:42:48.313Z",
+  "hasVocals": true,
+  "voiceReference": "Zeldina"
+}

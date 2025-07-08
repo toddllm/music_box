@@ -1,0 +1,45 @@
+
+    <div class="saved-song-card" data-song='{"id":"spoon-ballad-vocals","title":"The Epic Ballad of Sir Wiggleton (With Vocals)","musicUrl":"https://v3.fal.media/files/monkey/C2_gjTrYLMk1hz9KF5vN2_output.wav","lyrics":{"title":"The Epic Ballad of Sir Wiggleton (With Vocals)","verses":[{"type":"verse","number":1,"singer":"player","lines":["In the kitchen of King Arthur's greatest knight","Lived a spoon of silver, shining bright","Sir Wiggleton was his noble name","Destined for culinary fame!"],"startTime":0,"duration":18},{"type":"chorus","number":1,"singer":"ai","lines":["Oh Wiggleton, brave Wiggleton"],"startTime":18,"duration":4.5},{"type":"verse","number":3,"singer":"player","lines":["Your handle gleams in morning sun","From cereal bowls to royal stew","There's no one quite as stirring as you!","He stirred the soup with valor true"],"startTime":22.5,"duration":18},{"type":"verse","number":4,"singer":"ai","lines":["He mixed the batter, through and through","No bowl too deep, no pot too wide","Sir Wiggleton stirred with knightly pride!"],"startTime":40.5,"duration":9}],"totalDuration":50},"aiVoiceUrl":"https://v3.fal.media/files/monkey/C2_gjTrYLMk1hz9KF5vN2_output.wav"}'>
+        <h4>The Epic Ballad of Sir Wiggleton (With Vocals)</h4>
+        <p class="song-info">epic orchestral heroic male vocal anthem • 5s • With Vocals</p>
+        <button class="play-saved-btn" onclick="playSavedSong(this)">
+            <i class="fas fa-play"></i> Play
+        </button>
+    </div>
+  
+
+    <div class="saved-song-card" data-song='{"id":"shoelace-romance-vocals","title":"The Tragic Romance of the Lonely Shoelace (With Vocals)","musicUrl":"https://v3.fal.media/files/panda/1G4IiNRTaU6KA6Llh9EIp_output.wav","lyrics":{"title":"The Tragic Romance of the Lonely Shoelace (With Vocals)","verses":[{"type":"verse","number":1,"singer":"player","lines":["In a sneaker dark and deep","Where dirty socks do sometimes sleep","There lived a lace of brilliant white","Who dreamed of love both day and night"],"startTime":0,"duration":18},{"type":"chorus","number":1,"singer":"ai","lines":["Tie me up, tie me down"],"startTime":18,"duration":4.5},{"type":"verse","number":3,"singer":"player","lines":["I'm the loneliest lace in town","Through the eyelets I must go","But love's a thing I'll never know"],"startTime":22.5,"duration":9}],"totalDuration":32},"aiVoiceUrl":"https://v3.fal.media/files/panda/1G4IiNRTaU6KA6Llh9EIp_output.wav"}'>
+        <h4>The Tragic Romance of the Lonely Shoelace (With Vocals)</h4>
+        <p class="song-info">romantic ballad melancholy female vocal emotional • 5s • With Vocals</p>
+        <button class="play-saved-btn" onclick="playSavedSong(this)">
+            <i class="fas fa-play"></i> Play
+        </button>
+    </div>
+  
+
+    <div class="saved-song-card" data-song='{"id":"sandwich-mystery-vocals","title":"The Mysterious Case of the Singing Sandwich (With Vocals)","musicUrl":"https://v3.fal.media/files/panda/2PidIN_smcq7wJUKS1_Sv_output.wav","lyrics":{"title":"The Mysterious Case of the Singing Sandwich (With Vocals)","verses":[{"type":"verse","number":1,"singer":"player","lines":["It was a Tuesday, dark and cold","When the strangest tale was told","In Delilah's Deli down the street","Something happened most elite"],"startTime":0,"duration":18},{"type":"chorus","number":1,"singer":"ai","lines":["Who made the sandwich sing?"],"startTime":18,"duration":4.5},{"type":"verse","number":3,"singer":"player","lines":["What a most peculiar thing!","Bread and meat in harmony","Singing in sweet melody!"],"startTime":22.5,"duration":9}],"totalDuration":32},"aiVoiceUrl":"https://v3.fal.media/files/panda/2PidIN_smcq7wJUKS1_Sv_output.wav"}'>
+        <h4>The Mysterious Case of the Singing Sandwich (With Vocals)</h4>
+        <p class="song-info">jazz noir mystery detective male vocal swing • 5s • With Vocals</p>
+        <button class="play-saved-btn" onclick="playSavedSong(this)">
+            <i class="fas fa-play"></i> Play
+        </button>
+    </div>
+  
+
+    <div class="saved-song-card" data-song='{"id":"captain-tissue-vocals","title":"The Incredible Journey of Captain Tissue (With Vocals)","musicUrl":"https://v3.fal.media/files/rabbit/Y7FUM_S_PR428s0a-tl2p_output.wav","lyrics":{"title":"The Incredible Journey of Captain Tissue (With Vocals)","verses":[{"type":"verse","number":1,"singer":"player","lines":["In a bathroom cabinet high","Where the cleaning supplies lie","Lived a tissue box so brave","Captain Tissue, soft and suave!"],"startTime":0,"duration":18},{"type":"chorus","number":1,"singer":"ai","lines":["Soft and strong, white and true"],"startTime":18,"duration":4.5},{"type":"verse","number":3,"singer":"player","lines":["Captain Tissue's there for you!","Pull one out, then pull some more","Comfort knocking at your door!"],"startTime":22.5,"duration":9}],"totalDuration":32},"aiVoiceUrl":"https://v3.fal.media/files/rabbit/Y7FUM_S_PR428s0a-tl2p_output.wav"}'>
+        <h4>The Incredible Journey of Captain Tissue (With Vocals)</h4>
+        <p class="song-info">superhero march triumphant male vocal action epic • 6s • With Vocals</p>
+        <button class="play-saved-btn" onclick="playSavedSong(this)">
+            <i class="fas fa-play"></i> Play
+        </button>
+    </div>
+  
+
+    <div class="saved-song-card" data-song='{"id":"pumpkin-tummy-vocals","title":"The Great Pumpkin's Tummy Symphony (With Vocals)","musicUrl":"https://v3.fal.media/files/koala/0tIXP7FdX7SDs3Xf3l21S_output.wav","lyrics":{"title":"The Great Pumpkin's Tummy Symphony (With Vocals)","verses":[{"type":"verse","number":1,"singer":"player","lines":["In the pumpkin patch so grand and wide","Lives a pumpkin with enormous pride","His tummy's big, his tummy's round","The biggest belly that can be found!"],"startTime":0,"duration":18},{"type":"chorus","number":1,"singer":"ai","lines":["I believe! I believe!"],"startTime":18,"duration":4.5},{"type":"verse","number":3,"singer":"player","lines":["In the pumpkin's tummy dream!","Bum bum bum tum tum tum!","Greatest tummy under sun!"],"startTime":22.5,"duration":9}],"totalDuration":32},"aiVoiceUrl":"https://v3.fal.media/files/koala/0tIXP7FdX7SDs3Xf3l21S_output.wav"}'>
+        <h4>The Great Pumpkin's Tummy Symphony (With Vocals)</h4>
+        <p class="song-info">whimsical bouncy magical children vocal fun • 5s • With Vocals</p>
+        <button class="play-saved-btn" onclick="playSavedSong(this)">
+            <i class="fas fa-play"></i> Play
+        </button>
+    </div>
+  

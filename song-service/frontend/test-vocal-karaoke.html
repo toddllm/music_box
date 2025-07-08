@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Vocal Karaoke Integration</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background: #1a1a2e;
+            color: #fff;
+        }
+        .song { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border: 1px solid #9d4edd; 
+            border-radius: 8px;
+            background: #0f3460;
+        }
+        audio { 
+            width: 100%; 
+            margin: 10px 0; 
+        }
+        h1 { color: #9d4edd; }
+        h3 { color: #ff006e; }
+        .verse {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(157, 78, 221, 0.1);
+            border-radius: 5px;
+        }
+        .player { color: #3b82f6; }
+        .ai { color: #9d4edd; }
+    </style>
+</head>
+<body>
+    <h1>Test Vocal Karaoke Songs</h1>
+    <div id="songs"></div>
+
+    <script>
+        async function loadAndDisplay() {
+            try {
+                const response = await fetch('../karaoke-songs/catalog.json');
+                const catalog = await response.json();
+                
+                console.log('Catalog loaded:', catalog);
+                
+                const container = document.getElementById('songs');
+                
+                for (const songInfo of catalog.songs) {
+                    const songResponse = await fetch(`../karaoke-songs/${songInfo.file}`);
+                    const song = await songResponse.json();
+                    
+                    console.log('Song loaded:', song.title);
+                    
+                    const songDiv = document.createElement('div');
+                    songDiv.className = 'song';
+                    
+                    let lyricsHtml = '<h4>Lyrics Structure:</h4>';
+                    song.lyrics.verses.forEach(verse => {
+                        lyricsHtml += `<div class="verse">
+                            <strong class="${verse.singer}">${verse.singer === 'player' ? 'You sing' : 'Zeldina sings'}:</strong><br>
+                            ${verse.lines.join('<br>')}
+                            <br><small>(${verse.startTime}s - ${verse.startTime + verse.duration}s)</small>
+                        </div>`;
+                    });
+                    
+                    songDiv.innerHTML = `
+                        <h3>${song.title}</h3>
+                        <p>Style: ${song.style} | Duration: ${song.duration}s</p>
+                        <audio controls>
+                            <source src="${song.musicUrl}" type="audio/wav">
+                        </audio>
+                        ${lyricsHtml}
+                    `;
+                    
+                    container.appendChild(songDiv);
+                }
+            } catch (error) {
+                console.error('Error loading songs:', error);
+                document.getElementById('songs').innerHTML = `<p style="color: #ef4444;">Error: ${error.message}</p>`;
+            }
+        }
+        
+        loadAndDisplay();
+    </script>
+</body>
+</html>
