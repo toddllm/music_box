@@ -385,7 +385,7 @@
                     card.innerHTML = `
                         <h3>${song.title}</h3>
                         <p><i class="fas fa-clock"></i> ${song.duration}s</p>
-                        <p><i class="fas fa-music"></i> ${song.style}</p>
+                        <p><i class="fas fa-music"></i> ${song.genres || 'Musical'}</p>
                         <p><i class="fas fa-microphone-alt"></i> Sing with Zeldina!</p>
                     `;
                     card.onclick = () => this.selectSong(index);
@@ -403,7 +403,7 @@
                 // Load full song data
                 const songInfo = this.songs[index];
                 try {
-                    const response = await fetch(`karaoke-songs/${songInfo.file}`);
+                    const response = await fetch(`karaoke-songs/${songInfo.id}.json`);
                     this.currentSong = await response.json();
                     this.setupKaraokePlayer();
                 } catch (error) {
@@ -417,7 +417,7 @@
 
                 // Update player info
                 document.getElementById('currentSongTitle').textContent = this.currentSong.title;
-                document.getElementById('currentSongStyle').textContent = `Style: ${this.currentSong.style}`;
+                document.getElementById('currentSongStyle').textContent = `Style: ${this.currentSong.style || this.currentSong.genres || 'Musical'}`;
 
                 // Load audio
                 this.audioPlayer.src = this.currentSong.musicUrl;

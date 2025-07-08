@@ -1,44 +1,54 @@
 {
-  "generatedAt": "2025-07-08T18:03:00.668Z",
+  "generatedAt": "2025-07-08T19:29:53.462Z",
   "totalSongs": 5,
   "voiceReference": "Zeldina",
   "songs": [
     {
       "id": "spoon-ballad-vocals",
+      "file": "spoon-ballad-vocals.json",
       "title": "The Epic Ballad of Sir Wiggleton (With Vocals)",
       "genres": "epic orchestral heroic male vocal anthem",
+      "style": "epic",
       "duration": 5,
       "musicUrl": "https://v3.fal.media/files/monkey/C2_gjTrYLMk1hz9KF5vN2_output.wav",
       "hasVocals": true
     },
     {
       "id": "shoelace-romance-vocals",
+      "file": "shoelace-romance-vocals.json",
       "title": "The Tragic Romance of the Lonely Shoelace (With Vocals)",
       "genres": "romantic ballad melancholy female vocal emotional",
+      "style": "romantic",
       "duration": 5,
       "musicUrl": "https://v3.fal.media/files/panda/1G4IiNRTaU6KA6Llh9EIp_output.wav",
       "hasVocals": true
     },
     {
       "id": "sandwich-mystery-vocals",
+      "file": "sandwich-mystery-vocals.json",
       "title": "The Mysterious Case of the Singing Sandwich (With Vocals)",
       "genres": "jazz noir mystery detective male vocal swing",
+      "style": "jazz",
       "duration": 5,
       "musicUrl": "https://v3.fal.media/files/panda/2PidIN_smcq7wJUKS1_Sv_output.wav",
       "hasVocals": true
     },
     {
       "id": "captain-tissue-vocals",
+      "file": "captain-tissue-vocals.json",
       "title": "The Incredible Journey of Captain Tissue (With Vocals)",
       "genres": "superhero march triumphant male vocal action epic",
+      "style": "superhero",
       "duration": 6,
       "musicUrl": "https://v3.fal.media/files/rabbit/Y7FUM_S_PR428s0a-tl2p_output.wav",
       "hasVocals": true
     },
     {
       "id": "pumpkin-tummy-vocals",
+      "file": "pumpkin-tummy-vocals.json",
       "title": "The Great Pumpkin's Tummy Symphony (With Vocals)",
       "genres": "whimsical bouncy magical children vocal fun",
+      "style": "whimsical",
       "duration": 5,
       "musicUrl": "https://v3.fal.media/files/koala/0tIXP7FdX7SDs3Xf3l21S_output.wav",
       "hasVocals": true

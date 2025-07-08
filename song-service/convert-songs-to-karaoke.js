@@ -136,8 +136,10 @@ function saveKaraokeSongs(songs) {
     voiceReference: 'Zeldina',
     songs: karaokeSongs.map(s => ({
       id: s.id,
+      file: `${s.id}.json`,
       title: s.title,
       genres: s.genres,
+      style: s.style || s.genres,
       duration: s.duration,
       musicUrl: s.musicUrl,
       hasVocals: true
