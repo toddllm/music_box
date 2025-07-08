@@ -201,6 +201,101 @@ Resources:
             Path: /karaoke/songs/{id}
             Method: OPTIONS
 
+  # Singing Experiment Lambda Function
+  SingingExperimentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'music-box-singing-experiment-${Stage}'
+      CodeUri: ./
+      Handler: singing-experiment-lambda.handler
+      Description: 'Experiment with different singing synthesis approaches'
+      Timeout: 60  # 1 minute
+      MemorySize: 512
+      Environment:
+        Variables:
+          NODE_ENV: production
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: 
+                - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:music-box/elevenlabs-*'
+                - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:music-box/openai-*'
+      Events:
+        TestAll:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /singing/test-all
+            Method: POST
+        TestSingle:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /singing/test
+            Method: POST
+        GetServices:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /singing/services
+            Method: GET
+        CorsTestAll:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /singing/test-all
+            Method: OPTIONS
+        CorsTest:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /singing/test
+            Method: OPTIONS
+        CorsServices:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /singing/services
+            Method: OPTIONS
+
+  # Fal Singing Lambda Function
+  FalSingingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'music-box-fal-singing-${Stage}'
+      CodeUri: ./
+      Handler: fal-singing-lambda.handler
+      Description: 'Test Fal.ai singing models (YuE, DiffRhythm, ACE-Step)'
+      Timeout: 300  # 5 minutes for song generation
+      MemorySize: 1024
+      Environment:
+        Variables:
+          NODE_ENV: production
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: 
+                - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:music-box/fal-ai-*'
+      Events:
+        TestFal:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /fal/test
+            Method: POST
+        CorsFal:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SongGenerationApi
+            Path: /fal/test
+            Method: OPTIONS
+
   # API Gateway (simplified without DefinitionBody)
   SongGenerationApi:
     Type: AWS::Serverless::Api

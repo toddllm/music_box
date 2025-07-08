@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Singing Synthesis Experiments</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .experiment-form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .results {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .result-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+        }
+        .result-item h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .audio-player {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .status {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        .status.loading {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .status.success {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        .status.error {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+        .service-info {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .example-lyrics {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .example-btn {
+            padding: 5px 10px;
+            font-size: 12px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .example-btn:hover {
+            background: #d0d0d0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎤 Singing Synthesis Experiments</h1>
+    
+    <div class="experiment-form">
+        <h2>Test Singing Synthesis</h2>
+        
+        <div class="form-group">
+            <label for="lyricsText">Lyrics to Sing</label>
+            <textarea id="lyricsText" placeholder="Enter the lyrics you want to be sung...">La la la, I'm singing a happy song!</textarea>
+            <div class="example-lyrics">
+                <button class="example-btn" onclick="setLyrics('La la la, I&#39;m singing a happy song!')">Simple</button>
+                <button class="example-btn" onclick="setLyrics('Oh Sir Wiggleton, brave Sir Wiggleton\nYour handle gleams in morning sun\nFrom cereal bowls to royal stew\nThere&#39;s no one quite as stirring as you!')">Spoon Ballad</button>
+                <button class="example-btn" onclick="setLyrics('Beep boop beep, we&#39;re dancing robots\nMoving to the electronic beats\nOur circuits light up when we groove\nRobot dance party can&#39;t be beat!')">Robot Dance</button>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="service">Service</label>
+            <select id="service" onchange="updateOptions()">
+                <option value="elevenlabs">ElevenLabs</option>
+                <option value="openai">OpenAI TTS</option>
+                <option value="suno">Suno AI (Coming Soon)</option>
+            </select>
+        </div>
+        
+        <div id="elevenLabsOptions" class="service-options">
+            <div class="form-group">
+                <label for="style">Style</label>
+                <select id="style">
+                    <option value="melodic">Melodic</option>
+                    <option value="ballad">Ballad</option>
+                    <option value="upbeat">Upbeat</option>
+                </select>
+            </div>
+        </div>
+        
+        <div id="openaiOptions" class="service-options" style="display: none;">
+            <div class="form-group">
+                <label for="voice">Voice</label>
+                <select id="voice">
+                    <option value="alloy">Alloy (Neutral)</option>
+                    <option value="echo">Echo (Male)</option>
+                    <option value="fable">Fable (British)</option>
+                    <option value="onyx">Onyx (Deep Male)</option>
+                    <option value="nova">Nova (Female)</option>
+                    <option value="shimmer">Shimmer (Soft Female)</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <button class="btn-primary" onclick="testSinging()">🎵 Test Singing</button>
+            <button class="btn-secondary" onclick="testAllServices()">🔄 Compare All Services</button>
+        </div>
+        
+        <div id="status"></div>
+    </div>
+    
+    <div class="results" id="results" style="display: none;">
+        <h2>Results</h2>
+        <div id="resultsContent"></div>
+    </div>
+
+    <script>
+        const API_URL = 'https://pd08901pf7.execute-api.us-east-1.amazonaws.com/prod';
+        
+        function setLyrics(text) {
+            document.getElementById('lyricsText').value = text;
+        }
+        
+        function updateOptions() {
+            const service = document.getElementById('service').value;
+            document.getElementById('elevenLabsOptions').style.display = service === 'elevenlabs' ? 'block' : 'none';
+            document.getElementById('openaiOptions').style.display = service === 'openai' ? 'block' : 'none';
+        }
+        
+        function showStatus(message, type = 'loading') {
+            const status = document.getElementById('status');
+            status.className = `status ${type}`;
+            status.textContent = message;
+            status.style.display = 'block';
+        }
+        
+        function hideStatus() {
+            document.getElementById('status').style.display = 'none';
+        }
+        
+        async function testSinging() {
+            const text = document.getElementById('lyricsText').value.trim();
+            if (!text) {
+                showStatus('Please enter some lyrics to sing', 'error');
+                return;
+            }
+            
+            const service = document.getElementById('service').value;
+            const style = document.getElementById('style').value;
+            const voice = document.getElementById('voice').value;
+            
+            showStatus(`Testing ${service} singing synthesis...`, 'loading');
+            
+            try {
+                const response = await fetch(`${API_URL}/singing/test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, service, style, voice })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus('Singing synthesis successful!', 'success');
+                    displayResult(data);
+                } else {
+                    showStatus(`Error: ${data.error}`, 'error');
+                }
+                
+            } catch (error) {
+                showStatus(`Failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testAllServices() {
+            const text = document.getElementById('lyricsText').value.trim();
+            if (!text) {
+                showStatus('Please enter some lyrics to sing', 'error');
+                return;
+            }
+            
+            const style = document.getElementById('style').value;
+            
+            showStatus('Testing all available services...', 'loading');
+            
+            try {
+                const response = await fetch(`${API_URL}/singing/test-all`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, style })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus('All tests complete!', 'success');
+                    displayAllResults(data.results);
+                } else {
+                    showStatus(`Error: ${data.error}`, 'error');
+                }
+                
+            } catch (error) {
+                showStatus(`Failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function displayResult(result) {
+            const resultsDiv = document.getElementById('results');
+            const content = document.getElementById('resultsContent');
+            
+            resultsDiv.style.display = 'block';
+            
+            content.innerHTML = `
+                <div class="result-item">
+                    <h3>${result.service} - ${result.model || result.voice || 'Default'}</h3>
+                    ${result.audio ? `
+                        <audio controls class="audio-player">
+                            <source src="data:audio/mpeg;base64,${result.audio}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    ` : `<p style="color: red;">No audio generated: ${result.error}</p>`}
+                    <div class="service-info">
+                        ${JSON.stringify(result.settings || result.voice || {}, null, 2)}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function displayAllResults(results) {
+            const resultsDiv = document.getElementById('results');
+            const content = document.getElementById('resultsContent');
+            
+            resultsDiv.style.display = 'block';
+            
+            content.innerHTML = results.map((result, index) => `
+                <div class="result-item">
+                    <h3>${result.service} ${result.voice ? `- ${result.voice}` : ''}</h3>
+                    ${result.success && result.audio ? `
+                        <audio controls class="audio-player">
+                            <source src="data:audio/mpeg;base64,${result.audio}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    ` : `<p style="color: red;">Failed: ${result.error || 'Unknown error'}</p>`}
+                    <div class="service-info">
+                        <pre>${JSON.stringify({
+                            service: result.service,
+                            model: result.model,
+                            settings: result.settings,
+                            voice: result.voice
+                        }, null, 2)}</pre>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Check available services on load
+        async function checkServices() {
+            try {
+                const response = await fetch(`${API_URL}/singing/services`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    console.log('Available services:', data.services);
+                }
+            } catch (error) {
+                console.error('Failed to check services:', error);
+            }
+        }
+        
+        checkServices();
+    </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+{
+  "testDate": "2025-07-08",
+  "status": "success",
+  "summary": "Fal.ai singing models tested successfully. DiffRhythm is working well for song generation.",
+  "results": {
+    "yue": {
+      "status": "timeout",
+      "notes": "YuE model requests get stuck in queue (position 0) indefinitely. May be a capacity issue.",
+      "attempts": 2
+    },
+    "diffrhythm": {
+      "status": "success",
+      "averageTime": "4.7 seconds",
+      "notes": "Fast and reliable. Generates full songs with vocals. Uses 'style_prompt' instead of 'genres'.",
+      "samples": [
+        {
+          "name": "Quick test",
+          "duration": 5.3,
+          "url": "https://v3.fal.media/files/lion/aA7huDNEPoDstVelBPc1o_output.wav"
+        },
+        {
+          "name": "Spoon ballad",
+          "duration": 4.1,
+          "url": "https://v3.fal.media/files/monkey/gErD4vSiuYDuq6etxrnq1_output.wav",
+          "fileSize": "16MB"
+        }
+      ]
+    },
+    "ace-step": {
+      "status": "not_tested",
+      "notes": "Requires instrumental track upload. Designed for adding vocals to existing music."
+    }
+  },
+  "recommendations": [
+    "Use DiffRhythm as the primary singing model for the karaoke game",
+    "Consider implementing melody cloning feature with reference audio",
+    "Test ACE-Step later for adding harmonies or vocals to instrumentals",
+    "Monitor YuE model status - may become available later"
+  ],
+  "deployment": {
+    "endpoint": "https://pd08901pf7.execute-api.us-east-1.amazonaws.com/prod/fal/test",
+    "testPage": "https://d1fsftnjlcjyyq.cloudfront.net/fal-singing-test.html",
+    "lambdaFunction": "music-box-fal-singing-prod"
+  }
+}

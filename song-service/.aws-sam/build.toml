@@ -7,6 +7,6 @@ architecture = "x86_64"
 handler = "lambda.handler"
 manifest_hash = "50cd97367216360bea9161966312add8"
 packagetype = "Zip"
-functions = ["SongGenerationFunction", "KaraokeFunction"]
+functions = ["SongGenerationFunction", "KaraokeFunction", "SingingExperimentFunction", "FalSingingFunction"]
 
 [layer_build_definitions]
