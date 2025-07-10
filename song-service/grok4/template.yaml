@@ -1,0 +1,189 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Music Box Karaoke Game - Enhanced Version with DiffRhythm
+
+Globals:
+  Function:
+    Timeout: 300
+    MemorySize: 512
+    Runtime: nodejs20.x
+
+Resources:
+  KaraokeBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "karaoke-app-${AWS::AccountId}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: ['*']
+            AllowedMethods: [GET, HEAD]
+            AllowedOrigins: ['*']
+            MaxAge: 3600
+
+  KaraokeDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !GetAtt KaraokeBucket.RegionalDomainName
+            Id: S3Origin
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${KaraokeOAI}"
+        Enabled: true
+        DefaultRootObject: karaoke.html
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD, OPTIONS]
+          CachedMethods: [GET, HEAD]
+          ForwardedValues:
+            QueryString: false
+            Headers:
+              - Origin
+              - Access-Control-Request-Method
+              - Access-Control-Request-Headers
+          Compress: true
+        PriceClass: PriceClass_100
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+        Comment: Music Box Karaoke Enhanced Distribution
+
+  KaraokeOAI:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: OAI for Karaoke Bucket
+
+  KaraokeBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref KaraokeBucket
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              CanonicalUser: !GetAtt KaraokeOAI.S3CanonicalUserId
+            Action: s3:GetObject
+            Resource: !Sub "arn:aws:s3:::${KaraokeBucket}/*"
+
+  KaraokeTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: KaraokeSongs
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: createdAt
+          AttributeType: N
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: createdAt-index
+          KeySchema:
+            - AttributeName: createdAt
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+
+  KaraokeLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: karaoke-lambda-enhanced
+      Handler: index.handler
+      CodeUri: ./lambda
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AmazonDynamoDBFullAccess
+        - AmazonSecretsManagerReadWrite
+        - AmazonS3FullAccess
+      Environment:
+        Variables:
+          DYNAMO_TABLE: !Ref KaraokeTable
+          S3_BUCKET: !Ref KaraokeBucket
+          REGION: !Ref AWS::Region
+      Events:
+        GenerateApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref KaraokeApi
+            Path: /generate
+            Method: POST
+        GetSongsApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref KaraokeApi
+            Path: /songs
+            Method: GET
+        GetSongApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref KaraokeApi
+            Path: /songs/{id}
+            Method: GET
+        WebhookApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref KaraokeApi
+            Path: /webhook
+            Method: POST
+
+  KaraokeApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+      Auth:
+        ApiKeyRequired: false
+
+  KaraokeSecrets:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: karaoke-api-keys
+      Description: API keys for Karaoke application
+      SecretString: !Sub |
+        {
+          "fal_api_key": "REPLACE_WITH_FAL_KEY",
+          "openai_api_key": "REPLACE_WITH_OPENAI_KEY"
+        }
+
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref KaraokeLambda
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${KaraokeApi}/*/*"
+
+Outputs:
+  CloudFrontUrl:
+    Description: CloudFront URL for the Karaoke app
+    Value: !Sub "https://${KaraokeDistribution.DomainName}"
+  ApiUrl:
+    Description: API Gateway endpoint URL
+    Value: !Sub "https://${KaraokeApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+  S3BucketName:
+    Description: S3 bucket name
+    Value: !Ref KaraokeBucket
+  DynamoTableName:
+    Description: DynamoDB table name
+    Value: !Ref KaraokeTable
